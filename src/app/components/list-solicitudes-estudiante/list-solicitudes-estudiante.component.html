@@ -1,0 +1,43 @@
+<!-- <mat-card>
+  @if (showTable) {
+  <div class="col-12">
+    <fieldset
+      [ngClass]="{ fieldseter: true }"
+      [nbSpinner]="loading"
+      nbSpinnerStatus="success"
+      nbSpinnerSize="xxlarge"
+      nbSpinnerMessage="{{ 'GLOBAL.cargando' | translate }}"
+    >
+      <legend>
+        &nbsp;{{
+          "MENU.gestionar_solicitudes.solicitudes_actualizacion" | translate
+        }}
+      </legend>
+      <mat-card-header> </mat-card-header>
+      <mat-card-content>
+        <ng2-smart-table
+          [settings]="estructuraTabla"
+          [source]="solicitudes"
+          (custom)="onclick($event)"
+        ></ng2-smart-table> 
+      </mat-card-content>
+    </fieldset>
+  </div>
+  } @if (showSolicitudID) {
+  <mat-card-content>
+    <sga-datos-mf-actualizacion-datos></sga-datos-mf-actualizacion-datos>
+    <button (click)="activateTab()" class="btn btn-info btn-sm">
+      <i class="nb-arrow-dropleft"></i> {{ "GLOBAL.regresar" | translate }}
+    </button>
+  </mat-card-content>
+  } @if (showSolicitudNombre) {
+  <mat-card-content>
+    <sga-datos-mf-actualizacion-nombres></sga-datos-mf-actualizacion-nombres>
+    <button (click)="activateTab()" class="btn btn-info btn-sm">
+      <i class="nb-arrow-dropleft"></i> {{ "GLOBAL.regresar" | translate }}
+    </button>
+  </mat-card-content>
+  }
+</mat-card> -->
+
+<h1>list-solicitudes-estudiante</h1>

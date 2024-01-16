@@ -9,7 +9,7 @@ import { getSingleSpaExtraProviders } from 'single-spa-angular';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    { provide: APP_BASE_HREF, useValue: '/' },
+    { provide: APP_BASE_HREF, useValue: '/datos/' },
     getSingleSpaExtraProviders(),
     provideHttpClient(withFetch())
   ]

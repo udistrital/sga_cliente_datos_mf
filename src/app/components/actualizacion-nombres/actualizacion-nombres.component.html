@@ -1,0 +1,82 @@
+<!-- <div class="col-12">
+  <mat-card style="margin: 0px; padding: 0px">
+    <mat-card-header>
+      {{ "solicitudes.solicitud_nombres" | translate }}
+    </mat-card-header>
+    <mat-card-content
+      [nbSpinner]="loading"
+      nbSpinnerStatus="success"
+      nbSpinnerSize="xxlarge"
+      nbSpinnerMessage="{{ 'GLOBAL.cargando' | translate }}"
+      style="padding: 0px"
+    >
+      <sga-datos-mf-datos-solicitante
+        [solicitante]="solicitante"
+        style="padding: 0px"
+        (cargado)="cargoDatos($event)"
+      >
+      </sga-datos-mf-datos-solicitante>
+
+      <sga-datos-mf-dynamic-form
+        [normalform]="solicitudForm"
+        [modeloData]="solicitudDatos"
+        (result)="enviarSolicitud($event)"
+        (resultAux)="habilitarRevision($event)"
+        style="padding: 0px"
+      >
+      </sga-datos-mf-dynamic-form>
+
+      <div>
+        @if (Admin) {
+        <sga-datos-mf-dynamic-form
+          [normalform]="respuestaSolicitudForm"
+          [modeloData]="solicitudRespuesta"
+          (result)="enviarRespuesta($event)"
+        >
+        </sga-datos-mf-dynamic-form>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+<div class="col-12">
+  <mat-card style="margin: 0px; padding: 0px">
+    <mat-card-header>
+      {{ "solicitudes.solicitud_nombres" | translate }}
+    </mat-card-header>
+    <mat-card-content
+      [nbSpinner]="loading"
+      nbSpinnerStatus="success"
+      nbSpinnerSize="xxlarge"
+      nbSpinnerMessage="{{ 'GLOBAL.cargando' | translate }}"
+      style="padding: 0px"
+    >
+      <sga-datos-mf-datos-solicitante
+        [solicitante]="solicitante"
+        style="padding: 0px"
+        (cargado)="cargoDatos($event)"
+      >
+      </sga-datos-mf-datos-solicitante>
+
+      <sga-datos-mf-dynamic-form
+        [normalform]="solicitudForm"
+        [modeloData]="solicitudDatos"
+        (result)="enviarSolicitud($event)"
+        (resultAux)="habilitarRevision($event)"
+        style="padding: 0px"
+      >
+      </sga-datos-mf-dynamic-form>
+
+      <div>
+        @if (Admin){
+        <sga-datos-mf-dynamic-form
+          [normalform]="respuestaSolicitudForm"
+          [modeloData]="solicitudRespuesta"
+          (result)="enviarRespuesta($event)"
+        >
+        </sga-datos-mf-dynamic-form>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div> -->

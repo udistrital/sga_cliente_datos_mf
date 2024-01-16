@@ -19,7 +19,6 @@
           "options": {
             "outputPath": "dist/sga-datos-mf",
             "index": "src/index.html",
-            "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],
@@ -37,7 +36,7 @@
             "customWebpackConfig": {
               "path": "extra-webpack.config.js",
               "libraryName": "sga-datos-mf",
-              "libraryTarget": "umd"
+              "libraryTarget": "system"
             },
             "deployUrl": "http://localhost:4202/"
           },
