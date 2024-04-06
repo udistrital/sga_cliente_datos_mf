@@ -3,6 +3,8 @@ import { RouterModule, Routes } from "@angular/router";
 import { SolicitudesComponent } from "./solicitudes.component";
 import { ListSolicitudesEstudianteComponent } from "./list-solicitudes-estudiante/list-solicitudes-estudiante.component";
 import { AuthGuard } from "../_guards/auth.guard";
+import { ActualizacionDatosComponent } from "./actualizacion-datos/actualizacion-datos.component";
+import { DatosSolicitanteComponent } from "./datos-solicitante/datos-solicitante.component";
 
 const routes: Routes = [{
     path: '',
@@ -28,5 +30,7 @@ export class SolicitudesRoutingComponent { }
 
 export const routedComponents = [
     SolicitudesComponent,
-    ListSolicitudesEstudianteComponent
+    ListSolicitudesEstudianteComponent,
+    ActualizacionDatosComponent,
+    DatosSolicitanteComponent
 ]

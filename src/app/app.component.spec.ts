@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'sga-notas-mf' title`, () => {
+  it(`should have the 'sga-datos-mf' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('sga-notas-mf');
+    expect(app.title).toEqual('sga-datos-mf');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('sga-notas-mf app is running!');
+    expect(compiled.querySelector('.content span')?.textContent).toContain('sga-datos-mf app is running!');
   });
 });

@@ -1,5 +1,5 @@
 <mat-card>
-  <div class="col-12" *ngIf="showTable">
+  <div class="col-12" [hidden]="!showTable">
     <mat-card-header>
       <legend>
         &nbsp;{{ "MENU.gestionar_solicitudes.solicitudes_actualizacion" | translate }}
@@ -40,14 +40,14 @@
   <mat-card-content *ngIf="showSolicitudID">
     <ngx-actualizacion-datos></ngx-actualizacion-datos>
     <button (click)="activateTab()" class="btn btn-info btn-sm">
-      <i class="nb-arrow-dropleft"></i> {{ "GLOBAL.regresar" | translate }}
+      <mat-icon>keyboard_arrow_left</mat-icon> {{ "GLOBAL.regresar" | translate }}
     </button>
   </mat-card-content>
 
   <mat-card-content *ngIf="showSolicitudNombre">
     <actualizacion-nombres></actualizacion-nombres>
     <button (click)="activateTab()" class="btn btn-info btn-sm">
-      <i class="nb-arrow-dropleft"></i> {{ "GLOBAL.regresar" | translate }}
+      <mat-icon>keyboard_arrow_left</mat-icon> {{ "GLOBAL.regresar" | translate }}
     </button>
   </mat-card-content>
 </mat-card>

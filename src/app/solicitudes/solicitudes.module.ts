@@ -43,6 +43,8 @@ import { SolicitudesRoutingComponent, routedComponents } from './solicitudes-rou
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SolicitudesComponent } from './solicitudes.component';
 import { SgaMidService } from 'src/data/services/sga_mid.service';
+import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
+import { DocumentoService } from 'src/data/services/documento.service';
 
 @NgModule({
     declarations: [
@@ -97,6 +99,8 @@ import { SgaMidService } from 'src/data/services/sga_mid.service';
     providers: [
       PopUpManager,
       SgaMidService,
+      NewNuxeoService,
+      DocumentoService,
       {
         provide: MatPaginatorIntl,
         useClass: CustomMatPaginatorIntl

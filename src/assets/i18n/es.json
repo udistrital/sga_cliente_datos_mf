@@ -1,6 +1,7 @@
 {
     "GLOBAL": {
         "acciones": "Acciones",
+        "regresar": "Regresar",
         "elementos": "Elementos por página",
         "siguiente": "Siguiente",
         "previa": "Anterior",
