@@ -5,6 +5,7 @@ import { ListSolicitudesEstudianteComponent } from "./list-solicitudes-estudiant
 import { AuthGuard } from "../_guards/auth.guard";
 import { ActualizacionDatosComponent } from "./actualizacion-datos/actualizacion-datos.component";
 import { DatosSolicitanteComponent } from "./datos-solicitante/datos-solicitante.component";
+import { ViewSolicitudesComponent } from "./view-solicitudes/view-solicitudes.component";
 
 const routes: Routes = [{
     path: '',
@@ -13,6 +14,11 @@ const routes: Routes = [{
         {
             path: 'list-solicitudes-estudiante',
             component: ListSolicitudesEstudianteComponent,
+//            canActivate: [AuthGuard],
+        },
+        {
+            path: 'ver-solicitudes',
+            component: ViewSolicitudesComponent,
 //            canActivate: [AuthGuard],
         }
     ],
@@ -32,5 +38,6 @@ export const routedComponents = [
     SolicitudesComponent,
     ListSolicitudesEstudianteComponent,
     ActualizacionDatosComponent,
-    DatosSolicitanteComponent
+    DatosSolicitanteComponent,
+    ViewSolicitudesComponent
 ]

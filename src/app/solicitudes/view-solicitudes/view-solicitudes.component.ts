@@ -1,19 +1,24 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
+import * as momentTimezone from 'moment-timezone';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { SgaMidService } from 'src/data/services/sga_mid.service';
-import * as momentTimezone from 'moment-timezone';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'list-solicitudes-estudiante',
-  templateUrl: './list-solicitudes-estudiante.component.html',
-  styleUrls: ['../solicitudes.component.scss'],
+  // tslint:disable-next-line: component-selector
+  selector: 'view-solicitudes',
+  templateUrl: './view-solicitudes.component.html',
+  styleUrls: ['./view-solicitudes.component.scss'],
 })
-export class ListSolicitudesEstudianteComponent implements OnInit {
+export class ViewSolicitudesComponent implements OnInit {
+  datosSolicitudes: any[];
+  estructuraTabla: any;
+
   dataSource: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
@@ -22,11 +27,14 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   displayedColumns: string[] = ['Numero', 'Fecha', 'Tipo', 'Estado', 'Observacion', 'Acciones'];
   nombresColumnas = [];
 
+  solicitudSeleccionada: any;
   showTable: boolean;
   showSolicitudID: boolean;
   showSolicitudNombre: boolean;
   rol: any;
+  nuevaSolicitud: boolean;
   listaDatos = [];
+  isStudent: boolean = false;
 
   constructor(
     private translate: TranslateService,
@@ -44,22 +52,28 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     this.nombresColumnas["Observacion"] = "solicitudes.observacion";
     this.nombresColumnas["Acciones"] = "GLOBAL.acciones";
 
-    this.autenticationService.getRole().then((rol)=> {
+    this.autenticationService.getRole().then((rol) => {
       this.rol = rol;
-      if (this.rol.includes('ADMIN_SGA') || this.rol.includes('ASISTENTE_ADMISIONES')) {
-        this.loadList();
-      } if (this.rol.includes('ESTUDIANTE')) {
-        this.loadSolicitud();
-      }
+      this.isStudent = this.rol.includes('ESTUDIANTE');
+      this.loadListByRol();
       this.cargarDatosTabla([]);
-    });
+    })
   }
 
-  ngOnInit() {}
+  loadListByRol(){
+    if (this.rol.includes('ADMIN_SGA') || this.rol.includes('ASISTENTE_ADMISIONES')) {
+      this.loadList();
+    } if (this.rol.includes('ESTUDIANTE')) {
+      this.loadSolicitud();
+    }
+  }
+
+  ngOnInit() { }
 
   onclick(data) {
-    sessionStorage.setItem('TerceroSolitud', data.TerceroId);
+    this.solicitudSeleccionada = data;
     sessionStorage.setItem('Solicitud', data.Numero);
+    sessionStorage.setItem('TerceroSolitud', data.TerceroId);
     if (data.Tipo === 'Actualización de identificación') {
       this.showSolicitudID = true;
       this.showTable = false;
@@ -72,16 +86,18 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   }
 
   async loadList() {
+    this.listaDatos = []
     for (let i = 15; i < 21; i++) {
       await this.loadSolicitudes(i);
-      if (i === 20) {
-        await this.loadSolicitudes(32);
-        await this.loadSolicitudes(33);
-      }
     }
+    await this.loadSolicitudes(32);
+    await this.loadSolicitudes(33);
+
     const listaFinal = [];
     for (let i = 0; i < this.listaDatos.length; i++) {
-      listaFinal[i] = this.listaDatos[i][0];
+      for (let j = 0; j < this.listaDatos[i].length; j++) {
+        listaFinal.push(this.listaDatos[i][j]);
+      }
     }
     this.cargarDatosTabla(listaFinal);
   }
@@ -89,7 +105,9 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   loadSolicitudes(IdEstadoTipoSolicitud: number) {
     return new Promise((resolve, reject) => {
       this.sgaMidService
-        .get('solicitud_evaluacion/consultar_solicitudes/' + IdEstadoTipoSolicitud)
+        .get(
+          'solicitud_evaluacion/consultar_solicitudes/' + IdEstadoTipoSolicitud,
+        )
         .subscribe(
           (response: any) => {
             if (response.Response.Code === '200') {
@@ -106,10 +124,11 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
               }
               resolve(dataInfo);
             } else if (response.Response.Code === '400') {
-              this.popUpManager.showInfoToast(
+              Swal.fire(
+                this.translate.instant('GLOBAL.error'),
+                this.translate.instant('solicitudes.error'),
                 'info',
-                this.translate.instant('solicitudes.error')
-              );
+              )
               resolve([]);
             } else if (response.Response.Code === '404') {
               resolve([]);
@@ -142,15 +161,17 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
             });
             this.cargarDatosTabla(dataInfo);
           } else if (response.Response.Code === '404') {
-            this.popUpManager.showInfoToast(
-              'info',
-              this.translate.instant('solicitudes.no_data')
-            );
+            Swal.fire(
+              this.translate.instant('GLOBAL.info'),
+              this.translate.instant('solicitudes.no_data'),
+              'warning',
+            )
           } else {
-            this.popUpManager.showInfoToast(
-              'info',
-              this.translate.instant('solicitudes.error')
-            );
+            Swal.fire(
+              this.translate.instant('GLOBAL.error'),
+              this.translate.instant('solicitudes.error'),
+              'error',
+            )
           }
         },
         () => {
@@ -172,11 +193,40 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     this.dataSource = new MatTableDataSource(datosCargados);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.dataSource.sort.direction = 'asc';
+    this.dataSource.sort.active = 'Fecha';
+  }
+
+  consultarSolicitudes() {
+    this.showTable = false;
+    this.cargarDatosTabla([]);
+    this.rol = this.rol?this.rol : this.autenticationService.getRole();
+    this.loadListByRol();
   }
 
   activateTab() {
+    this.nuevaSolicitud = undefined;
+    this.solicitudSeleccionada = undefined
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
+    this.nuevaSolicitud = false;
+    this.loadListByRol();
+  }
+
+  nuevoNombre() {
+    sessionStorage.setItem('TerceroSolitud', localStorage.getItem('persona_id'));
+    this.showSolicitudNombre = true;
+    this.showSolicitudID = false;
+    this.showTable = false;
+    this.nuevaSolicitud = true;
+  }
+
+  nuevoID() {
+    sessionStorage.setItem('TerceroSolitud', localStorage.getItem('persona_id'));
+    this.showSolicitudID = true;
+    this.showTable = false;
+    this.showSolicitudNombre = false;
+    this.nuevaSolicitud = true;
   }
 }
