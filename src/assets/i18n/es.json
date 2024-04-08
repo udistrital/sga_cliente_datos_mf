@@ -15,6 +15,31 @@
             "solicitudes_actualizacion": "Solicitudes de actualización\nde datos"
         }
     },
+    "ERROR": {
+        "general": "La solicitud no pudo ser cumplida",
+        "400": "La solicitud contiene sintaxis errónea",
+        "401": "Autorización no es posible, ha fallado o aún no ha sido provista",
+        "403": "El servidor se rehúsa a responder dado que el cliente no tiene los privilegios adecuados",
+        "404": "Recurso no encontrado",
+        "405": "La petición fue hecha utilizando un método de solicitud no soportado",
+        "408": "Ha excedido el límite de tiempo en retornar respuesta",
+        "409": "La solicitud no pudo ser procesada debido a un conflicto con el estado actual del recurso",
+        "500": "Error interno en el servidor",
+        "formato_documento_pdf": "El formato del documento escogido no es pdf",
+        "no_documento": "Debe seleccionar un archivo",
+        "error_subir_documento": "Ocurrió un error subiendo los documentos, por favor intente de nuevo.",
+        "error_cargar_documento": "Ocurrió un error al descargar documentos",
+        "rol_insuficiente_titulo": "El usuario no cuenta con permisos",
+        "rol_insuficiente": "El usuario no cuenta con los permisos suficientes para usar el sistema.",
+        "0": "El servicio solicitado no se encuentra disponible",
+        "titulo_generico": "¡Disculpe, algo ha salido mal!",
+        "fallo_informacion_en": "Ha habido un error al consultar la información sobre",
+        "sin_informacion_en": "No se ha encontrado información sobre",
+        "persiste_error_comunique_OAS": "Regrese e intente de nuevo más tarde. Si el error persiste, comuníquese con Oficina Asesora de Tecnologías e Información (OATI)",
+        "error_previsualizar_doc": "No se pudo visualizar el documento, no es un formato válido o no se ha encontrado.",
+        "contenido_archivo_erroneo": "Contenido de archivo no estándar para el formato solicitado",
+        "contenido_archivo_erroneo_mensaje": "El contenido del archivo no es correcto para el formato solicitado y puede quedar ilegible al cargarlo. \nIntente guardarlo nuevamente en los formatos permitidos; si se trata de un PDF guárdelo en versión optimizada o comprimida."
+    },
     "solicitudes": {
         "respuesta": "La respuesta a esta solicitud ha sido registrada correctamente",
         "doc_valido": "¿El documento enviado es aprobado para esta solicitud?",

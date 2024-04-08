@@ -6,6 +6,7 @@ import { AuthGuard } from "../_guards/auth.guard";
 import { ActualizacionDatosComponent } from "./actualizacion-datos/actualizacion-datos.component";
 import { DatosSolicitanteComponent } from "./datos-solicitante/datos-solicitante.component";
 import { ViewSolicitudesComponent } from "./view-solicitudes/view-solicitudes.component";
+import { ActualizacionNombresComponent } from "./actualizacion-nombres/actualizacion-nombres.component";
 
 const routes: Routes = [{
     path: '',
@@ -39,5 +40,6 @@ export const routedComponents = [
     ListSolicitudesEstudianteComponent,
     ActualizacionDatosComponent,
     DatosSolicitanteComponent,
-    ViewSolicitudesComponent
+    ViewSolicitudesComponent,
+    ActualizacionNombresComponent
 ]

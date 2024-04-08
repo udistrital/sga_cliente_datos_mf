@@ -1,6 +1,6 @@
-import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
-import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
-import { DATOS_SOLICITANTE } from './form-datos-solicitante';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { Solicitante } from 'src/data/models/solicitante';
 
 @Component({
@@ -10,41 +10,32 @@ import { Solicitante } from 'src/data/models/solicitante';
 })
 export class DatosSolicitanteComponent implements OnInit {
 
-  datosSolicitante: any;
+  datosSolicitante: FormGroup;
   _solicitante: Solicitante;
-  loading: boolean;
 
   @Input()
   set solicitante(solicitante: Solicitante) {
-    this.loading = true;
     if (solicitante !== undefined || solicitante !== this._solicitante) {
       this._solicitante = solicitante;
       if (solicitante.Id !== undefined) {
         this._solicitante = solicitante;
-        this.loading = false;
-        this.cargado.emit(true);
-      } else {
-        this.loading = false;
-        this.cargado.emit(false);
       }
     }
-    this.loading = false;
-    this.cargado.emit(true);
   }
 
-  @Output()
-  cargado = new EventEmitter<boolean>();
-
-  constructor(private translate: TranslateService) {
-    this.datosSolicitante = DATOS_SOLICITANTE;
-    this.construirForm()
-    this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.construirForm();
+  constructor(private translate: TranslateService,
+    private formBuilder: FormBuilder) {
+    this.datosSolicitante = this.formBuilder.group({
+      nombre: new FormControl(this._solicitante?.Nombre, [Validators.required]),
+      codigo: new FormControl(this._solicitante?.Codigo, [Validators.required]),
+      carrera: new FormControl(this._solicitante?.Carrera, [Validators.required]),
+      telefono: new FormControl(this._solicitante?.Telefono, [Validators.required]),
+      correo_inst: new FormControl(this._solicitante?.CorreoInstitucional, [Validators.required]),
+      correo_personal: new FormControl(this._solicitante?.CorreoPersonal, [Validators.required])
     });
   }
 
   ngOnInit() {
-    this.loading = true;
     this._solicitante = new Solicitante();
     this._solicitante.Carrera = '';
     this._solicitante.Codigo = '';
@@ -52,13 +43,6 @@ export class DatosSolicitanteComponent implements OnInit {
     this._solicitante.CorreoPersonal = '';
     this._solicitante.Nombre = '';
     this._solicitante.Telefono = '';
-  }
-
-  construirForm() {
-    this.datosSolicitante.titulo = this.translate.instant('solicitudes.solicitante');
-    this.datosSolicitante.campos.forEach(campo => {
-      campo.label = this.translate.instant('solicitudes.' + campo.label_i18n);
-    })
   }
 
 }

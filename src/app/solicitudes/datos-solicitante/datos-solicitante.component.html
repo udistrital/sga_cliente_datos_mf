@@ -1,9 +1,59 @@
 
-<!--<div [nbSpinner]="loading"
-    nbSpinnerStatus="success"
-    nbSpinnerSize="xxlarge"
-    nbSpinnerMessage="{{ 'GLOBAL.cargando' | translate }}">
-  <ngx-dinamicform [normalform]="datosSolicitante"
-                   [modeloData]="_solicitante">
-  </ngx-dinamicform>
-</div>-->
+<div>
+  <form [formGroup]="datosSolicitante">
+    <fieldset>
+      <div fxLayout="row">
+        <div fxFlex="50">
+          <mat-form-field style="width: 100%;">
+            <mat-label>{{ 'solicitudes.nombre' | translate }}</mat-label>
+            <input matInput placeholder="{{ 'solicitudes.nombre' | translate }}"
+              formControlName="nombre" class="form-control"
+              name="nombre" type="text">
+          </mat-form-field>
+        </div>
+        <div fxFlex="50">
+          <mat-form-field style="width: 100%;">
+            <mat-label>{{ 'solicitudes.codigo' | translate }}</mat-label>
+            <input matInput placeholder="{{ 'solicitudes.codigo' | translate }}"
+              formControlName="codigo" class="form-control"
+              name="codigo" type="text">
+          </mat-form-field>
+        </div>
+        <div fxFlex="50">
+          <mat-form-field style="width: 100%;">
+            <mat-label>{{ 'solicitudes.carrera' | translate }}</mat-label>
+            <input matInput placeholder="{{ 'solicitudes.carrera' | translate }}"
+              formControlName="carrera" class="form-control"
+              name="carrera" type="text">
+          </mat-form-field>
+        </div>
+      </div>
+      <div fxLayout="row">
+        <div fxFlex="50">
+          <mat-form-field style="width: 100%;">
+            <mat-label>{{ 'solicitudes.telefono' | translate }}</mat-label>
+            <input matInput placeholder="{{ 'solicitudes.telefono' | translate }}"
+              formControlName="telefono" class="form-control"
+              name="telefono" type="text">
+          </mat-form-field>
+        </div>
+        <div fxFlex="50">
+          <mat-form-field style="width: 100%;">
+            <mat-label>{{ 'solicitudes.correo_inst' | translate }}</mat-label>
+            <input matInput placeholder="{{ 'solicitudes.correo_inst' | translate }}"
+              formControlName="correo_inst" class="form-control"
+              name="correo_inst" type="text">
+          </mat-form-field>
+        </div>
+        <div fxFlex="50">
+          <mat-form-field style="width: 100%;">
+            <mat-label>{{ 'solicitudes.correo_personal' | translate }}</mat-label>
+            <input matInput placeholder="{{ 'solicitudes.correo_personal' | translate }}"
+              formControlName="correo_personal" class="form-control"
+              name="correo_personal" type="text">
+          </mat-form-field>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>

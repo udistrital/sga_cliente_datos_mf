@@ -6,3 +6,29 @@
 body {
   background-color: black;
 }
+
+fieldset {
+  padding: .35em .75em .625em;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+}
+
+
+.fieldseter {
+  display: flow-root;
+  -moz-padding-start: 1rem;
+  -moz-padding-end: 1rem;
+  -moz-padding-after: 1rem;
+  -webkit-margin-start: 1rem;
+  -webkit-margin-end: 1rem;
+  -webkit-padding-before: 1rem;
+  -webkit-padding-start: 1rem;
+  -webkit-padding-end: 1rem;
+  -webkit-padding-after: 1rem;
+  min-width: -moz-min-content;
+  border-width: 2px;
+  border-radius: .4rem;
+  border-style: groove;
+  border-color: #97C6E2;
+}
