@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { Solicitante } from 'src/data/models/solicitante';
+import { DATOS_SOLICITANTE } from './form-datos-solicitante';
 
 @Component({
   selector: 'ngx-datos-solicitante',
@@ -10,7 +11,7 @@ import { Solicitante } from 'src/data/models/solicitante';
 })
 export class DatosSolicitanteComponent implements OnInit {
 
-  datosSolicitante: FormGroup;
+  datosSolicitante: any;
   _solicitante: Solicitante;
 
   @Input()
@@ -23,16 +24,12 @@ export class DatosSolicitanteComponent implements OnInit {
     }
   }
 
-  constructor(private translate: TranslateService,
-    private formBuilder: FormBuilder) {
-    this.datosSolicitante = this.formBuilder.group({
-      nombre: new FormControl(this._solicitante?.Nombre, [Validators.required]),
-      codigo: new FormControl(this._solicitante?.Codigo, [Validators.required]),
-      carrera: new FormControl(this._solicitante?.Carrera, [Validators.required]),
-      telefono: new FormControl(this._solicitante?.Telefono, [Validators.required]),
-      correo_inst: new FormControl(this._solicitante?.CorreoInstitucional, [Validators.required]),
-      correo_personal: new FormControl(this._solicitante?.CorreoPersonal, [Validators.required])
-    });
+  constructor(private translate: TranslateService) {
+      this.datosSolicitante = DATOS_SOLICITANTE;
+      this.construirForm()
+      this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
+        this.construirForm();
+      });
   }
 
   ngOnInit() {
@@ -43,6 +40,13 @@ export class DatosSolicitanteComponent implements OnInit {
     this._solicitante.CorreoPersonal = '';
     this._solicitante.Nombre = '';
     this._solicitante.Telefono = '';
+  }
+
+  construirForm() {
+    this.datosSolicitante.titulo = this.translate.instant('solicitudes.solicitante');
+    this.datosSolicitante.campos.forEach(campo => {
+      campo.label = this.translate.instant('solicitudes.' + campo.label_i18n);
+    })
   }
 
 }

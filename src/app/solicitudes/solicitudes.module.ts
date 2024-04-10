@@ -45,10 +45,12 @@ import { SolicitudesComponent } from './solicitudes.component';
 import { SgaMidService } from 'src/data/services/sga_mid.service';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { DocumentoService } from 'src/data/services/documento.service';
+import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 
 @NgModule({
     declarations: [
-      routedComponents
+      routedComponents,
+      DynamicFormComponent
     ],
     imports: [
       CommonModule,
