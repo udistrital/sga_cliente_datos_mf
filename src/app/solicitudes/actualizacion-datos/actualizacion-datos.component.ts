@@ -13,6 +13,7 @@ import { TercerosService } from 'src/data/services/terceros.service';
 import { SgaMidService } from 'src/data/services/sga_mid.service';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { PopUpManager } from 'src/app/managers/popup_manager';
+import { decrypt } from 'src/app/utils/util-encrypt';
 
 @Component({
   selector: 'ngx-actualizacion-datos',
@@ -352,7 +353,7 @@ export class ActualizacionDatosComponent implements OnInit {
 
   loadInfo() {
     this.loadInfoSolicitante();
-    const TerceroId = parseInt(localStorage.getItem('persona_id'), 10)
+    const TerceroId = parseInt(decrypt(localStorage.getItem('persona_id')), 10)
     if (TerceroId !== undefined) {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor = hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
@@ -455,7 +456,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 if (this.modificado) {
                   Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud')
                 }
-                Solicitud.Solicitante = parseInt(localStorage.getItem('persona_id'), 10);
+                Solicitud.Solicitante = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
                 Solicitud.TipoSolicitud = 3;
                 this.sgaMidService.post('solicitud_evaluacion/registrar_solicitud', Solicitud).subscribe(
                   (res: any) => {

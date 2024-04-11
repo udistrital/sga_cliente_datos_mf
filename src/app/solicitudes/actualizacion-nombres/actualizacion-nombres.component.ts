@@ -15,6 +15,7 @@ import { SgaMidService } from 'src/data/services/sga_mid.service';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { MatDialog } from '@angular/material/dialog';
+import { decrypt } from 'src/app/utils/util-encrypt';
 
 @Component({
   selector: 'actualizacion-nombres',
@@ -380,7 +381,7 @@ export class ActualizacionNombresComponent implements OnInit {
 
   loadInfo() {
     this.loadInfoSolicitante();
-    const TerceroId = parseInt(localStorage.getItem('persona_id'), 10)
+    const TerceroId = parseInt(decrypt(localStorage.getItem('persona_id')), 10)
     if (TerceroId !== undefined) {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor = hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
@@ -472,7 +473,7 @@ export class ActualizacionNombresComponent implements OnInit {
                   'America/Bogota').format('YYYY-MM-DD HH:mm:ss');
                 this.solicitudDatos.FechaSolicitud = this.solicitudDatos.FechaSolicitud + ' +0000 +0000';
                 Solicitud.Solicitud = this.solicitudDatos;
-                Solicitud.Solicitante = parseInt(localStorage.getItem('persona_id'), 10);
+                Solicitud.Solicitante = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
                 Solicitud.TipoSolicitud = 4;
                 if (this.modificado) {
                   Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud')

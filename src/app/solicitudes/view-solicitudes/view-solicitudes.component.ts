@@ -5,6 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 import * as momentTimezone from 'moment-timezone';
 import { PopUpManager } from 'src/app/managers/popup_manager';
+import { decrypt } from 'src/app/utils/util-encrypt';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { SgaMidService } from 'src/data/services/sga_mid.service';
 import Swal from 'sweetalert2';
@@ -145,7 +146,7 @@ export class ViewSolicitudesComponent implements OnInit {
   }
 
   loadSolicitud() {
-    const IdTercero = localStorage.getItem('persona_id');
+    const IdTercero = decrypt(localStorage.getItem('persona_id'));
     this.sgaMidService
       .get('solicitud_evaluacion/consultar_solicitud/' + IdTercero)
       .subscribe(
@@ -215,7 +216,7 @@ export class ViewSolicitudesComponent implements OnInit {
   }
 
   nuevoNombre() {
-    sessionStorage.setItem('TerceroSolitud', localStorage.getItem('persona_id'));
+    sessionStorage.setItem('TerceroSolitud', decrypt(localStorage.getItem('persona_id')));
     this.showSolicitudNombre = true;
     this.showSolicitudID = false;
     this.showTable = false;
@@ -223,7 +224,7 @@ export class ViewSolicitudesComponent implements OnInit {
   }
 
   nuevoID() {
-    sessionStorage.setItem('TerceroSolitud', localStorage.getItem('persona_id'));
+    sessionStorage.setItem('TerceroSolitud', decrypt(localStorage.getItem('persona_id')));
     this.showSolicitudID = true;
     this.showTable = false;
     this.showSolicitudNombre = false;

@@ -7,6 +7,7 @@ import * as momentTimezone from 'moment-timezone';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { decrypt } from 'src/app/utils/util-encrypt';
 
 @Component({
   selector: 'list-solicitudes-estudiante',
@@ -126,7 +127,7 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   }
 
   loadSolicitud() {
-    const IdTercero = localStorage.getItem('persona_id');
+    const IdTercero = decrypt(localStorage.getItem('persona_id'));
     this.sgaMidService
       .get('solicitud_evaluacion/consultar_solicitud/' + IdTercero)
       .subscribe(
