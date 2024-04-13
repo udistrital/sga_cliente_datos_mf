@@ -15,4 +15,5 @@ export const environment = {
     SGA_MID_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sga_mid/v1/',
     NUXEO_SERVICE:'https://autenticacion.portaloas.udistrital.edu.co/apioas/gestor_documental_mid/v1',
     TERCEROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/terceros_crud/v1/',
+    SGA_MID_ACTUALIZACION_DATOS_SERVICE: 'http://pruebasapi3.intranetoas.udistrital.edu.co:8548/v1/'
 };

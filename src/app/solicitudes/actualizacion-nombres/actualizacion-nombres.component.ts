@@ -241,7 +241,7 @@ export class ActualizacionNombresComponent implements OnInit {
             this.loading = false;
           }
         },
-        error => {
+        () => {
           this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
           this.loading = false;
         },
@@ -280,7 +280,7 @@ export class ActualizacionNombresComponent implements OnInit {
           this.popUpManager.showErrorToast(this.translate.instant('solicitudes.error'));
         }
       },
-      error => {
+      () => {
         this.loading = false;
         this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
       },
@@ -362,7 +362,7 @@ export class ActualizacionNombresComponent implements OnInit {
                 this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
               }
             },
-            error => {
+            () => {
               this.loading = false;
               this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             },
@@ -372,7 +372,7 @@ export class ActualizacionNombresComponent implements OnInit {
           this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
         }
       },
-      error => {
+      () => {
         this.loading = false;
         this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
       },
@@ -392,7 +392,7 @@ export class ActualizacionNombresComponent implements OnInit {
             this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].valor = response['PrimerApellido'] + ' ' + response['SegundoApellido'];
           }
         },
-        error => {
+        () => {
           this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
         },
       );
