@@ -9,11 +9,11 @@ import { ActualizacionDatos } from 'src/data/models/actualizacion-datos';
 import { RespuestaSolicitud } from 'src/data/models/respuesta-solicitud';
 import { Solicitante } from 'src/data/models/solicitante';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
-import { TercerosService } from 'src/data/services/terceros.service';
-import { SgaMidService } from 'src/data/services/sga_mid.service';
+import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
+import { SgaMidTercerosService } from 'src/data/services/terceros.service';
 
 @Component({
   selector: 'ngx-actualizacion-datos',
@@ -144,8 +144,8 @@ export class ActualizacionDatosComponent implements OnInit {
   constructor(
     private translate: TranslateService,
     private autenticationService: ImplicitAutenticationService,
-    private tercerosService: TercerosService,
-    private sgaMidService: SgaMidService,
+    private tercerosService: SgaMidTercerosService,
+    private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private newNuxeoService: NewNuxeoService,
     private popUpManager: PopUpManager) {
     this.solicitudForm = ACTUALIZAR_DATOS;
@@ -176,11 +176,11 @@ export class ActualizacionDatosComponent implements OnInit {
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud')
     if (IdTercero !== undefined) {
-      this.sgaMidService.get('persona/consultar_info_solicitante/' + IdTercero).subscribe(
+      this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/terceros/' + IdTercero).subscribe(
         (response: any) => {
-          if (response.Status === '200') {
-            this.solicitante = response.Data;
-          } else if (response.Status === '400') {
+          if (response.status === 200) {
+            this.solicitante = response.data;
+          } else if (response.status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.solicitante = new Solicitante();
             this.loading = false;
@@ -204,27 +204,27 @@ export class ActualizacionDatosComponent implements OnInit {
     this.loadInfoSolicitante();
     const IdSolicitud = sessionStorage.getItem('Solicitud');
     if (IdSolicitud !== undefined) {
-      this.sgaMidService.get('solicitud_evaluacion/consultar_solicitud/solicitud/' + IdSolicitud).subscribe(
+      this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolicitud).subscribe(
         (response: any) => {
-          if (response.Response.Code === '200') {
+          if (response.status === 200) {
             this.solicitudForm.btn = '';
             this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor =
-              momentTimezone.tz(response.Response.Body[0].FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
+              momentTimezone.tz(response.data.Resultado.FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].valor =
-              momentTimezone.tz(response.Response.Body[0].FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
+              momentTimezone.tz(response.data.Resultado.FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoActual')].valor = response.Response.Body[0].TipoDocumentoActual;
+            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoActual')].valor = response.data.Resultado.TipoDocumentoActual;
             this.solicitudForm.campos[this.getIndexForm('TipoDocumentoActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('NumeroActual')].valor = response.Response.Body[0].NumeroActual;
+            this.solicitudForm.campos[this.getIndexForm('NumeroActual')].valor = response.data.Resultado.NumeroActual;
             this.solicitudForm.campos[this.getIndexForm('NumeroActual')].deshabilitar = true;
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionActual')].valor =
-              momentTimezone.tz(response.Response.Body[0].FechaExpedicionActual, 'America/Bogota').format('DD/MM/YYYY');
+              momentTimezone.tz(response.data.Resultado.FechaExpedicionActual, 'America/Bogota').format('DD/MM/YYYY');
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.Response.Body[0].TipoDocumentoNuevo;
+            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.data.Resultado.TipoDocumentoNuevo;
             this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.Response.Body[0].NumeroNuevo;
+            this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.data.Resultado.NumeroNuevo;
             this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].deshabilitar = true;
-            this.solicitudForm.Documento = response.Response.Body[0].Documento;
+            this.solicitudForm.Documento = response.data.Resultado.Documento;
             const files = []
             if (this.solicitudForm.Documento + '' !== '0') {
               files.push({ Id: this.solicitudForm.Documento, key: 'Documento' });
@@ -244,9 +244,9 @@ export class ActualizacionDatosComponent implements OnInit {
               )
             }
             this.loading = false;
-          } else if (response.Response.Code === '404') {
+          } else if (response.status === 404) {
             this.loading = false;
-          } else if (response.Response.Code === '400') {
+          } else if (response.status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.loading = false;
           }
@@ -272,9 +272,9 @@ export class ActualizacionDatosComponent implements OnInit {
       this.solicitudRespuesta.Estado = 11
     }
     this.solicitudRespuesta.Aprobado = this.respuestaSolicitudForm.campos[1].valor;
-    this.sgaMidService.post('solicitud_evaluacion/registrar_evolucion', this.solicitudRespuesta).subscribe(
+    this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', this.solicitudRespuesta).subscribe(
       (response: any) => {
-        if (response.Response.Code === '200') {
+        if (response.status === 200) {
           this.loading = false;
           this.loadInfoById();
           Swal.fire({
@@ -287,7 +287,7 @@ export class ActualizacionDatosComponent implements OnInit {
               this.solicitudEnviada.emit(true);
             }
           });
-        } else if (response.Response.Code === '400') {
+        } else if (response.status === 400) {
           this.loading = false;
           this.popUpManager.showErrorToast(this.translate.instant('solicitudes.error'));
         }
@@ -302,19 +302,19 @@ export class ActualizacionDatosComponent implements OnInit {
   loadInfoNueva() {
     const IdSolcitud = sessionStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
-    this.sgaMidService.get('solicitud_evaluacion/consultar_solicitud/solicitud/' + IdSolcitud).subscribe(
+    this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolcitud).subscribe(
       (response: any) => {
-        if (response.Response.Code === '200') {
+        if (response.status === 200) {
           this.solicitudForm.btn = '';
           this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].valor =
-            momentTimezone.tz(response.Response.Body[0].FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
+            momentTimezone.tz(response.data.Resultado.FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
           this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].deshabilitar = true;
-          this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.Response.Body[0].TipoDocumentoNuevo;
+          this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.data.Resultado.TipoDocumentoNuevo;
           this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].deshabilitar = true;
-          this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.Response.Body[0].NumeroNuevo;
+          this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.data.Resultado.NumeroNuevo;
           this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].deshabilitar = true;
           this.solicitudForm.campos[this.getIndexForm('Documento')].deshabilitar = true;
-          this.solicitudForm.Documento = response.Response.Body[0].Documento;
+          this.solicitudForm.Documento = response.data.Resultado.Documento;
           const files = []
           if (this.solicitudForm.Documento + '' !== '0') {
             files.push({ Id: this.solicitudForm.Documento, key: 'Documento' });
@@ -333,7 +333,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 },
               )
           }
-        } else if (response.Response.Code === '404') {
+        } else if (response.status === 404) {
           this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].deshabilitar = false;
           this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].deshabilitar = false;
           this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].deshabilitar = false;
@@ -458,9 +458,9 @@ export class ActualizacionDatosComponent implements OnInit {
                 }
                 Solicitud.Solicitante = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
                 Solicitud.TipoSolicitud = 3;
-                this.sgaMidService.post('solicitud_evaluacion/registrar_solicitud', Solicitud).subscribe(
+                this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', Solicitud).subscribe(
                   (res: any) => {
-                    if (res.Response.Code === '200') {
+                    if (res.status === 200) {
                       this.loading = false;
                       Swal.fire({
                         icon: 'success',

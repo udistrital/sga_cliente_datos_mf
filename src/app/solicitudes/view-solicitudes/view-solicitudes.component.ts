@@ -7,7 +7,7 @@ import * as momentTimezone from 'moment-timezone';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
-import { SgaMidService } from 'src/data/services/sga_mid.service';
+import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -39,7 +39,7 @@ export class ViewSolicitudesComponent implements OnInit {
 
   constructor(
     private translate: TranslateService,
-    private sgaMidService: SgaMidService,
+    private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private popUpManager: PopUpManager,
     private autenticationService: ImplicitAutenticationService,
   ) {
@@ -105,14 +105,14 @@ export class ViewSolicitudesComponent implements OnInit {
 
   loadSolicitudes(IdEstadoTipoSolicitud: number) {
     return new Promise((resolve, reject) => {
-      this.sgaMidService
+      this.sgaMidActualizacionDatosService
         .get(
-          'solicitud_evaluacion/consultar_solicitudes/' + IdEstadoTipoSolicitud,
+          'solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud,
         )
         .subscribe(
           (response: any) => {
-            if (response.Response.Code === '200') {
-              const data = <Array<any>>response.Response.Body[0].Data;
+            if (response.status === 200) {
+              const data = <Array<any>>response.data.Data;
               const dataInfo = <Array<any>>[];
               data.forEach(element => {
                 element.Fecha = momentTimezone
@@ -124,14 +124,14 @@ export class ViewSolicitudesComponent implements OnInit {
                 this.listaDatos.push(dataInfo);
               }
               resolve(dataInfo);
-            } else if (response.Response.Code === '400') {
+            } else if (response.status === 400) {
               Swal.fire(
                 this.translate.instant('GLOBAL.error'),
                 this.translate.instant('solicitudes.error'),
                 'info',
               )
               resolve([]);
-            } else if (response.Response.Code === '404') {
+            } else if (response.status === 404) {
               resolve([]);
             }
           },
@@ -147,12 +147,12 @@ export class ViewSolicitudesComponent implements OnInit {
 
   loadSolicitud() {
     const IdTercero = decrypt(localStorage.getItem('persona_id'));
-    this.sgaMidService
-      .get('solicitud_evaluacion/consultar_solicitud/' + IdTercero)
+    this.sgaMidActualizacionDatosService
+      .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
         (response: any) => {
-          if (response.Response.Code === '200') {
-            const data = <Array<any>>response.Response.Body[0].Response;
+          if (response.status === 200) {
+            const data = <Array<any>>response.data.Response;
             const dataInfo = <Array<any>>[];
             data.forEach(element => {
               element.Fecha = momentTimezone
@@ -161,7 +161,7 @@ export class ViewSolicitudesComponent implements OnInit {
               dataInfo.push(element);
             });
             this.cargarDatosTabla(dataInfo);
-          } else if (response.Response.Code === '404') {
+          } else if (response.status === 404) {
             Swal.fire(
               this.translate.instant('GLOBAL.info'),
               this.translate.instant('solicitudes.no_data'),

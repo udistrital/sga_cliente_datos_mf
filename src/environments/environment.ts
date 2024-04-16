@@ -12,11 +12,9 @@ export const environment = {
       SIGN_OUT_REDIRECT_URL: 'http://localhost:4200/',
       AUTENTICACION_MID: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/autenticacion_mid/v1/token/userRol',
     },
-    SGA_MID_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sga_mid/v1/',
-    //SGA_MID_SERVICE: 'http://localhost:8119/v1/',
-    //SGA_MID_SERVICE: 'http://pruebasapi.intranetoas.udistrital.edu.co:8119/v1/',
     NUXEO_SERVICE:'https://autenticacion.portaloas.udistrital.edu.co/apioas/gestor_documental_mid/v1',
     TERCEROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/terceros_crud/v1/',
     //TERCEROS_SERVICE: 'http://pruebasapi.intranetoas.udistrital.edu.co:8121/v1/',
-    SGA_MID_ACTUALIZACION_DATOS_SERVICE: 'http://pruebasapi3.intranetoas.udistrital.edu.co:8548/v1/'
+    //SGA_MID_ACTUALIZACION_DATOS_SERVICE: 'http://pruebasapi3.intranetoas.udistrital.edu.co:8548/v1/'
+    SGA_MID_ACTUALIZACION_DATOS_SERVICE: 'http://localhost:8095/v1/'
 };

@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
-import { SgaMidService } from 'src/data/services/sga_mid.service';
+import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import * as momentTimezone from 'moment-timezone';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -31,7 +31,7 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
 
   constructor(
     private translate: TranslateService,
-    private sgaMidService: SgaMidService,
+    private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private popUpManager: PopUpManager,
     private autenticationService: ImplicitAutenticationService,
   ) {
@@ -89,12 +89,12 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
 
   loadSolicitudes(IdEstadoTipoSolicitud: number) {
     return new Promise((resolve, reject) => {
-      this.sgaMidService
-        .get('solicitud_evaluacion/consultar_solicitudes/' + IdEstadoTipoSolicitud)
+      this.sgaMidActualizacionDatosService
+        .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
         .subscribe(
           (response: any) => {
-            if (response.Response.Code === '200') {
-              const data = <Array<any>>response.Response.Body[0].Data;
+            if (response.status === 200) {
+              const data = <Array<any>>response.data.Resultado;
               const dataInfo = <Array<any>>[];
               data.forEach(element => {
                 element.Fecha = momentTimezone
@@ -106,13 +106,13 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
                 this.listaDatos.push(dataInfo);
               }
               resolve(dataInfo);
-            } else if (response.Response.Code === '400') {
+            } else if (response.status === 400) {
               this.popUpManager.showInfoToast(
                 'info',
                 this.translate.instant('solicitudes.error')
               );
               resolve([]);
-            } else if (response.Response.Code === '404') {
+            } else if (response.status === 404) {
               resolve([]);
             }
           },
@@ -128,12 +128,12 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
 
   loadSolicitud() {
     const IdTercero = decrypt(localStorage.getItem('persona_id'));
-    this.sgaMidService
-      .get('solicitud_evaluacion/consultar_solicitud/' + IdTercero)
+    this.sgaMidActualizacionDatosService
+      .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
         (response: any) => {
-          if (response.Response.Code === '200') {
-            const data = <Array<any>>response.Response.Body[0].Response;
+          if (response.status === 200) {
+            const data = <Array<any>>response.data.Resultado;
             const dataInfo = <Array<any>>[];
             data.forEach(element => {
               element.Fecha = momentTimezone
@@ -142,7 +142,7 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
               dataInfo.push(element);
             });
             this.cargarDatosTabla(dataInfo);
-          } else if (response.Response.Code === '404') {
+          } else if (response.status === 404) {
             this.popUpManager.showInfoToast(
               'info',
               this.translate.instant('solicitudes.no_data')
