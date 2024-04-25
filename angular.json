@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": "dist/sga-datos-mf",
+            "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.single-spa.ts",
             "polyfills": [
@@ -37,13 +37,12 @@
             "customWebpackConfig": {
               "path": "extra-webpack.config.js",
               "libraryName": "sga-datos-mf",
-              "libraryTarget": "umd"
-            },
-            "deployUrl": "http://localhost:4202/"
+              "libraryTarget": "system"
+            }
           },
           "configurations": {
             "production": {
-              "optimization": true,
+              "optimization":true,
               "outputHashing": "none",
               "sourceMap": false,
               "namedChunks": false,
@@ -55,7 +54,8 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.production.ts"
                 }
-              ]
+              ],
+              "deployUrl": "https://sgadatos.portaloas.udistrital.edu.co/"
             },
             "development": {
               "optimization": true,
@@ -70,10 +70,14 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.development.ts"
                 }
-              ]
+              ],
+              "deployUrl": "https://pruebassgadatos.portaloas.udistrital.edu.co/"
+            },
+            "local": {
+              "deployUrl": "http://localhost:4209/"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "local"
         },
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
@@ -83,9 +87,12 @@
             },
             "development": {
               "browserTarget": "sga-datos-mf:build:development"
+            },
+            "local": {
+              "browserTarget": "sga-datos-mf:build:local"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
