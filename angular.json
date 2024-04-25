@@ -12,13 +12,14 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "sga-datos-mf",
+      "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "outputPath": "dist/sga-datos-mf",
             "index": "src/index.html",
+            "main": "src/main.single-spa.ts",
             "polyfills": [
               "zone.js"
             ],
@@ -31,30 +32,24 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [],
-            "main": "src/main.single-spa.ts",
+            "scripts": [
+            ],
             "customWebpackConfig": {
               "path": "extra-webpack.config.js",
               "libraryName": "sga-datos-mf",
-              "libraryTarget": "system"
+              "libraryTarget": "umd"
             },
             "deployUrl": "http://localhost:4202/"
           },
           "configurations": {
             "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
-              ],
+              "optimization": true,
               "outputHashing": "none",
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "buildOptimizer": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -63,10 +58,13 @@
               ]
             },
             "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true,
+              "optimization": true,
               "outputHashing": "none",
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "buildOptimizer": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -81,10 +79,10 @@
           "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "sga-datos-mf:build:production"
+              "browserTarget": "sga-datos-mf:build:production"
             },
             "development": {
-              "buildTarget": "sga-datos-mf:build:development"
+              "browserTarget": "sga-datos-mf:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -92,7 +90,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "sga-datos-mf:build"
+            "browserTarget": "sga-datos-mf:build"
           }
         },
         "test": {
@@ -116,5 +114,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

@@ -1,0 +1,84 @@
+<div class="col-12">
+  <mat-card>
+    <mat-card-content *ngIf="showTable">
+      <div class=col-12>
+        <fieldset [ngClass]="{ fieldseter: true }" style="overflow: auto;">
+          <legend>
+            &nbsp;{{ "MENU.gestionar_solicitudes.solicitudes_actualizacion" | translate }}
+          </legend>
+          <mat-card>
+            <mat-card-content>
+              <table mat-table [dataSource]="dataSource" matSort>
+                <ng-container *ngFor="let columna of displayedColumns" [matColumnDef]="columna">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ nombresColumnas[columna] | translate }}</th>
+                  <td mat-cell *matCellDef="let fila; let i = index"
+                      [ngClass]="{'row-par': i % 2 === 0, 'row-impar': i % 2 !== 0, 'row-hover': hoverIndex === i}"
+                      (mouseover)="hoverIndex = i"
+                      (mouseout)="hoverIndex = null">
+
+                      <ng-container *ngIf="columna != 'Acciones'">
+                          {{ fila[columna] }}
+                      </ng-container>
+
+                      <ng-container *ngIf="columna == 'Acciones'">
+                          <button mat-icon-button [matTooltip]=fila[columna]?.label (click)="onclick(fila)">
+                              <mat-icon [class]=fila[columna]?.class>{{ fila[columna]?.icon }}</mat-icon>
+                          </button>
+                      </ng-container>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let fila; columns: displayedColumns;"></tr>
+              </table>
+
+              <mat-paginator
+                  [pageSize]="10"
+                  [pageSizeOptions]="[]"
+                  showFirstLastButtons></mat-paginator>
+
+              <br/>
+
+              <div *ngIf="isStudent">
+                {{ 'solicitudes.generar_solicitud' | translate }}:
+                <br/>
+                <br/>
+                <div style="display: flex; justify-content: space-evenly; flex-wrap: wrap;"  >
+                  <button mat-flat-button color="primary" class="boton-primary" (click)="nuevoNombre()" >{{ 'solicitudes.generar_nombre_boton' | translate }} </button>
+                  <button mat-flat-button color="primary" class="boton-primary" (click)="nuevoID()" >{{ 'solicitudes.generar_id_boton' | translate }} </button>
+                </div>
+              </div>
+
+              <br/>
+
+              <button (click)="activateTab()" class="btn btn-info btn-sm" disabled=true>
+                <mat-icon>keyboard_arrow_left</mat-icon> {{ 'GLOBAL.regresar' | translate }}
+              </button>
+            </mat-card-content>
+          </mat-card>
+        </fieldset>
+      </div>
+    </mat-card-content>
+
+    <mat-card-content *ngIf="showSolicitudID">
+      <ngx-actualizacion-datos [nuevaSolicitud]="nuevaSolicitud"
+                               [dataSolicitud]="solicitudSeleccionada"
+                               (solicitudEnviada)="activateTab()">
+      </ngx-actualizacion-datos>
+      <button (click)="activateTab()" class="btn btn-info btn-sm">
+        <mat-icon>keyboard_arrow_left</mat-icon> {{ "GLOBAL.regresar" | translate }}
+      </button>
+    </mat-card-content>
+
+    <mat-card-content *ngIf="showSolicitudNombre">
+      <actualizacion-nombres [nuevaSolicitud]="nuevaSolicitud"
+                             [dataSolicitud]="solicitudSeleccionada"
+                             (solicitudEnviada)="activateTab()">
+      </actualizacion-nombres>
+
+      <button (click)="activateTab()" class="btn btn-info btn-sm">
+        <mat-icon>keyboard_arrow_left</mat-icon> {{ "GLOBAL.regresar" | translate }}
+      </button>
+    </mat-card-content>
+  </mat-card>
+</div>
