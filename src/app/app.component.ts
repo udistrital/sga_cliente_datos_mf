@@ -1,14 +1,31 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { fromEvent } from 'rxjs';
+import { getCookie } from './utils/cookie';
 
 @Component({
   selector: 'sga-datos-mf',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'sga-datos-mf';
+  whatLang$ = fromEvent(window, 'lang');
+
+  ngOnInit(): void {
+    this.validateLang();
+  }
+
+  constructor(
+    private translate: TranslateService
+  ) {}
+
+  validateLang() {
+    let lang = getCookie('lang') || 'es';
+    this.whatLang$.subscribe((x:any) => {
+      lang = x['detail']['answer'];
+      this.translate.setDefaultLang(lang)
+    });
+    this.translate.setDefaultLang(getCookie('lang') || 'es');
+  }
 }

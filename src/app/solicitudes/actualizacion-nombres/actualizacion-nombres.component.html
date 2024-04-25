@@ -1,0 +1,29 @@
+<div class="col-12">
+  <mat-card>
+    <mat-card-header>
+      {{ 'solicitudes.solicitud_nombres' | translate }}
+    </mat-card-header>
+    <mat-card-content>
+      <ngx-datos-solicitante [solicitante]="solicitante"
+                             style="padding: 0px;"
+                             (cargado)="cargoDatos($event)">
+      </ngx-datos-solicitante>
+
+      <ngx-dinamicform [normalform]="solicitudForm"
+                       [modeloData]="solicitudDatos"
+                       (result)="enviarSolicitud($event)"
+                       (resultAux)="habilitarRevision($event)"
+                       style="padding: 0px;">
+      </ngx-dinamicform>
+
+      <div>
+        <ngx-dinamicform [normalform]="respuestaSolicitudForm"
+                         [modeloData]="solicitudRespuesta"
+                         (result)="enviarRespuesta($event)"
+                         *ngIf="Admin">
+        </ngx-dinamicform>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>

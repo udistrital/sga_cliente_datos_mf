@@ -12,13 +12,14 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "sga-datos-mf",
+      "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "outputPath": "dist",
             "index": "src/index.html",
+            "main": "src/main.single-spa.ts",
             "polyfills": [
               "zone.js"
             ],
@@ -31,8 +32,8 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [],
-            "main": "src/main.single-spa.ts",
+            "scripts": [
+            ],
             "customWebpackConfig": {
               "path": "extra-webpack.config.js",
               "libraryName": "sga-datos-mf",
@@ -96,7 +97,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "sga-datos-mf:build"
+            "browserTarget": "sga-datos-mf:build"
           }
         },
         "test": {
@@ -120,5 +121,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
