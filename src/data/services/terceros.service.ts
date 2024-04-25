@@ -5,7 +5,7 @@ import { RequestManager } from 'src/app/managers/request_manager';
   providedIn: 'root',
 })
 
-export class TercerosService {
+export class SgaMidTercerosService {
 
   constructor(private requestManager: RequestManager) {
     this.requestManager.setPath('TERCEROS_SERVICE');

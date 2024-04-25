@@ -10,11 +10,12 @@ import { RespuestaSolicitud } from 'src/data/models/respuesta-solicitud';
 import { Solicitante } from 'src/data/models/solicitante';
 import { ActualizacionNombre } from 'src/data/models/actualizacion-nombre';
 import { PopUpManager } from 'src/app/managers/popup_manager';
-import { TercerosService } from 'src/data/services/terceros.service';
-import { SgaMidService } from 'src/data/services/sga_mid.service';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { MatDialog } from '@angular/material/dialog';
+import { decrypt } from 'src/app/utils/util-encrypt';
+import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
+import { SgaMidTercerosService } from 'src/data/services/terceros.service';
 
 @Component({
   selector: 'actualizacion-nombres',
@@ -142,8 +143,8 @@ export class ActualizacionNombresComponent implements OnInit {
   constructor(
     private translate: TranslateService,
     private popUpManager: PopUpManager,
-    private tercerosService: TercerosService,
-    private sgaMidService: SgaMidService,
+    private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
+    private sgaMidTerceroService: SgaMidTercerosService,
     private autenticationService: ImplicitAutenticationService,
     private newNuxeoService: NewNuxeoService,
     private dialogo: MatDialog) {
@@ -167,11 +168,11 @@ export class ActualizacionNombresComponent implements OnInit {
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud')
     if (IdTercero !== undefined) {
-      this.sgaMidService.get('persona/consultar_info_solicitante/' + IdTercero).subscribe(
+      this.sgaMidTerceroService.get('personas/' + IdTercero + '/info-solicitante').subscribe(
         (response: any) => {
-          if (response.Status === '200') {
-            this.solicitante = response.Data;
-          } else if (response.Status === '400') {
+          if (response.status === 200) {
+            this.solicitante = response.data;
+          } else if (response.status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.solicitante = new Solicitante();
             this.loading = false;
@@ -195,22 +196,22 @@ export class ActualizacionNombresComponent implements OnInit {
     this.loadInfoSolicitante();
     const IdSolicitud = sessionStorage.getItem('Solicitud')
     if (IdSolicitud !== undefined) {
-      this.sgaMidService.get('solicitud_evaluacion/consultar_solicitud/solicitud/' + IdSolicitud).subscribe(
+      this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolicitud).subscribe(
         (response: any) => {
-          if (response.Response.Code === '200') {
+          if (response.status === 200) {
             this.solicitudForm.btn = '';
-            const date = moment(response.Response.Body[0].FechaExpedicionNuevo, 'DD/MM/YYYY').toDate();
+            const date = moment(response.data.Resultado.FechaExpedicionNuevo, 'DD/MM/YYYY').toDate();
             this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor =
-              momentTimezone.tz(response.Response.Body[0].FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
-            this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor = response.Response.Body[0].NombreActual;
+              momentTimezone.tz(response.data.Resultado.FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
+            this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor = response.data.Resultado.NombreActual;
             this.solicitudForm.campos[this.getIndexForm('NombreActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].valor = response.Response.Body[0].ApellidoActual;
+            this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].valor = response.data.Resultado.ApellidoActual;
             this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.Response.Body[0].NombreNuevo;
+            this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.data.Resultado.NombreNuevo;
             this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.Response.Body[0].ApellidoNuevo;
+            this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.data.Resultado.ApellidoNuevo;
             this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = true;
-            this.solicitudForm.Documento = response.Response.Body[0].Documento;
+            this.solicitudForm.Documento = response.data.Resultado.Documento;
             const files = []
             if (this.solicitudForm.Documento + '' !== '0') {
               files.push({ Id: this.solicitudForm.Documento });
@@ -233,14 +234,14 @@ export class ActualizacionNombresComponent implements OnInit {
                 );
             }
             this.loading = false;
-          } else if (response.Response.Code === '404') {
+          } else if (response.status === 404) {
             this.loading = false;
-          } else if (response.Response.Code === '400') {
+          } else if (response.status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.loading = false;
           }
         },
-        error => {
+        () => {
           this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
           this.loading = false;
         },
@@ -259,9 +260,9 @@ export class ActualizacionNombresComponent implements OnInit {
       this.solicitudRespuesta.Estado = 11
     }
     this.solicitudRespuesta.Aprobado = this.respuestaSolicitudForm.campos[1].valor;
-    this.sgaMidService.post('solicitud_evaluacion/registrar_evolucion', this.solicitudRespuesta).subscribe(
+    this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', this.solicitudRespuesta).subscribe(
       (response: any) => {
-        if (response.Response.Code === '200') {
+        if (response.status === 200) {
           this.loading = false;
           this.loadInfoById();
           Swal.fire({
@@ -274,12 +275,12 @@ export class ActualizacionNombresComponent implements OnInit {
               this.solicitudEnviada.emit(true);
             }
           });
-        } else if (response.Response.Code === '400') {
+        } else if (response.status === 400) {
           this.loading = false;
           this.popUpManager.showErrorToast(this.translate.instant('solicitudes.error'));
         }
       },
-      error => {
+      () => {
         this.loading = false;
         this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
       },
@@ -289,14 +290,14 @@ export class ActualizacionNombresComponent implements OnInit {
   loadInfoNueva() {
     const IdSolcitud = localStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
-    this.sgaMidService.get('solicitud_evaluacion/consultar_solicitud/solicitud/' + IdSolcitud).subscribe(
+    this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolcitud).subscribe(
       (response: any) => {
-        if (response.Response.Code === '200') {
-          this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.Response.Body[0].NombreNuevo;
+        if (response.status === 200) {
+          this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.data.Resultado.NombreNuevo;
           this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].deshabilitar = true;
-          this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.Response.Body[0].ApellidoNuevo;
+          this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.data.Resultado.ApellidoNuevo;
           this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = true;
-          this.solicitudForm.Documento = response.Response.Body[0].Documento;
+          this.solicitudForm.Documento = response.data.Resultado.Documento;
           const files = []
           if (this.solicitudForm.Documento + '' !== '0') {
             files.push({ Id: this.solicitudForm.Documento });
@@ -319,15 +320,15 @@ export class ActualizacionNombresComponent implements OnInit {
                 },
               );
           }
-        } else if (response.Response.Code === '404') {
-          this.sgaMidService.get('solicitud_evaluacion/consultar_solicitud/' + IdSolcitud + '/18').subscribe(
+        } else if (response.status === 404) {
+          this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolcitud + '/18').subscribe(
             (response: any) => {
-              if (response.Response.Code === '200') {
-                this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.Response.Body[0].NombreNuevo;
+              if (response.status === 200) {
+                this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.data.Resultado.NombreNuevo;
                 this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].deshabilitar = true;
-                this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.Response.Body[0].ApellidoNuevo;
+                this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.data.Resultado.ApellidoNuevo;
                 this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = true;
-                this.solicitudForm.Documento = response.Response.Body[0].Documento;
+                this.solicitudForm.Documento = response.data.Resultado.Documento;
                 const files = []
                 if (this.solicitudForm.Documento + '' !== '0') {
                   files.push({ Id: this.solicitudForm.Documento });
@@ -352,7 +353,7 @@ export class ActualizacionNombresComponent implements OnInit {
                 } else {
                   this.loading = false;
                 }
-              } else if (response.Response.Code === '404') {
+              } else if (response.status === 404) {
                 this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = false;
                 this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = false;
                 this.loading = false;
@@ -361,7 +362,7 @@ export class ActualizacionNombresComponent implements OnInit {
                 this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
               }
             },
-            error => {
+            () => {
               this.loading = false;
               this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             },
@@ -371,7 +372,7 @@ export class ActualizacionNombresComponent implements OnInit {
           this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
         }
       },
-      error => {
+      () => {
         this.loading = false;
         this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
       },
@@ -380,18 +381,18 @@ export class ActualizacionNombresComponent implements OnInit {
 
   loadInfo() {
     this.loadInfoSolicitante();
-    const TerceroId = parseInt(localStorage.getItem('persona_id'), 10)
+    const TerceroId = parseInt(decrypt(localStorage.getItem('persona_id')), 10)
     if (TerceroId !== undefined) {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor = hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
-      this.tercerosService.get('tercero/' + TerceroId).subscribe(
+      this.sgaMidTerceroService.get('tercero/' + TerceroId).subscribe(
         (response: any) => {
           if (response !== undefined && response !== '') {
             this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor = response['PrimerNombre'] + ' ' + response['SegundoNombre']
             this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].valor = response['PrimerApellido'] + ' ' + response['SegundoApellido'];
           }
         },
-        error => {
+        () => {
           this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
         },
       );
@@ -472,14 +473,14 @@ export class ActualizacionNombresComponent implements OnInit {
                   'America/Bogota').format('YYYY-MM-DD HH:mm:ss');
                 this.solicitudDatos.FechaSolicitud = this.solicitudDatos.FechaSolicitud + ' +0000 +0000';
                 Solicitud.Solicitud = this.solicitudDatos;
-                Solicitud.Solicitante = parseInt(localStorage.getItem('persona_id'), 10);
+                Solicitud.Solicitante = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
                 Solicitud.TipoSolicitud = 4;
                 if (this.modificado) {
                   Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud')
                 }
-                this.sgaMidService.post('solicitud_evaluacion/registrar_solicitud', Solicitud).subscribe(
+                this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', Solicitud).subscribe(
                   (res: any) => {
-                    if (res.Response.Code === '200') {
+                    if (res.status === 200) {
                       this.loading = false;
                       Swal.fire({
                         icon: 'success',

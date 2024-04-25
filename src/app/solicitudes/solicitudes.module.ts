@@ -42,10 +42,11 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { SolicitudesRoutingComponent, routedComponents } from './solicitudes-routing.module';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SolicitudesComponent } from './solicitudes.component';
-import { SgaMidService } from 'src/data/services/sga_mid.service';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { DocumentoService } from 'src/data/services/documento.service';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
+import { SgaMidTercerosService } from 'src/data/services/terceros.service';
 
 @NgModule({
     declarations: [
@@ -100,7 +101,8 @@ import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
     ],
     providers: [
       PopUpManager,
-      SgaMidService,
+      SgaMidActualizacionDatosService,
+      SgaMidTercerosService,
       NewNuxeoService,
       DocumentoService,
       {
