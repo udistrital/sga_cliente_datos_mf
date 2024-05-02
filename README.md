@@ -21,7 +21,21 @@ Cliente para la gestión de datos, parte del Sistema de Gestión Académica. Est
 
 ```javascript
 export const environment = {
-    production: false
+    production: false,
+    apiUrl: 'http://localhost:4202/',
+    TOKEN: {
+      AUTORIZATION_URL: '',
+      CLIENTE_ID: '',
+      RESPONSE_TYPE: '',
+      SCOPE: '',
+      REDIRECT_URL: '',
+      SIGN_OUT_URL: '',
+      SIGN_OUT_REDIRECT_URL: '',
+      AUTENTICACION_MID: '',
+    },
+    NUXEO_SERVICE:'',
+    TERCEROS_SERVICE: '',
+    SGA_MID_ACTUALIZACION_DATOS_SERVICE: ''
 };
 
 ```
