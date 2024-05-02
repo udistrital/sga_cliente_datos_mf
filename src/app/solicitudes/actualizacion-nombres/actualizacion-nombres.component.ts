@@ -3,7 +3,8 @@ import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { ACTUALIZAR_NOMBRE } from './form-actualizacion-nombres';
 import { RESPUESTA_SOLICITUD } from '../actualizacion-datos/form-respuesta-solicitud';
 import { HttpErrorResponse } from '@angular/common/http';
-import Swal from 'sweetalert2';
+// @ts-ignore
+import Swal from 'sweetalert2/dist/sweetalert2';
 import * as momentTimezone from 'moment-timezone';
 import * as moment from 'moment';
 import { RespuestaSolicitud } from 'src/data/models/respuesta-solicitud';

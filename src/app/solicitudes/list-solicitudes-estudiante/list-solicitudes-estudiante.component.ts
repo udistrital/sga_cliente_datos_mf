@@ -166,8 +166,8 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     datosCargados.forEach(registro => {
       registro.Acciones = {
         icon: 'search',
-        label: this.translate.instant('solicitudes.tooltip_ver_registro'),
-        class: 'icon-primary'
+        label: this.translate.instant('solicitudes.tooltip_ver_registro')
+        
       };
     })
     this.dataSource = new MatTableDataSource(datosCargados);

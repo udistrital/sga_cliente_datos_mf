@@ -8,7 +8,8 @@ import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
-import Swal from 'sweetalert2';
+// @ts-ignore
+import Swal from 'sweetalert2/dist/sweetalert2';
 
 @Component({
   // tslint:disable-next-line: component-selector
@@ -25,7 +26,14 @@ export class ViewSolicitudesComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
 
-  displayedColumns: string[] = ['Numero', 'Fecha', 'Tipo', 'Estado', 'Observacion', 'Acciones'];
+  displayedColumns: string[] = [
+    'Numero',
+    'Fecha',
+    'Tipo',
+    'Estado',
+    'Observacion',
+    'Acciones',
+  ];
   nombresColumnas = [];
 
   solicitudSeleccionada: any;
@@ -41,35 +49,39 @@ export class ViewSolicitudesComponent implements OnInit {
     private translate: TranslateService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private popUpManager: PopUpManager,
-    private autenticationService: ImplicitAutenticationService,
+    private autenticationService: ImplicitAutenticationService
   ) {
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
-    this.nombresColumnas["Numero"] = "solicitudes.numero";
-    this.nombresColumnas["Fecha"] = "solicitudes.fecha";
-    this.nombresColumnas["Tipo"] = "solicitudes.tipo";
-    this.nombresColumnas["Estado"] = "solicitudes.estado";
-    this.nombresColumnas["Observacion"] = "solicitudes.observacion";
-    this.nombresColumnas["Acciones"] = "GLOBAL.acciones";
+    this.nombresColumnas['Numero'] = 'solicitudes.numero';
+    this.nombresColumnas['Fecha'] = 'solicitudes.fecha';
+    this.nombresColumnas['Tipo'] = 'solicitudes.tipo';
+    this.nombresColumnas['Estado'] = 'solicitudes.estado';
+    this.nombresColumnas['Observacion'] = 'solicitudes.observacion';
+    this.nombresColumnas['Acciones'] = 'GLOBAL.acciones';
 
     this.autenticationService.getRole().then((rol) => {
       this.rol = rol;
       this.isStudent = this.rol.includes('ESTUDIANTE');
       this.loadListByRol();
       this.cargarDatosTabla([]);
-    })
+    });
   }
 
-  loadListByRol(){
-    if (this.rol.includes('ADMIN_SGA') || this.rol.includes('ASISTENTE_ADMISIONES')) {
+  loadListByRol() {
+    if (
+      this.rol.includes('ADMIN_SGA') ||
+      this.rol.includes('ASISTENTE_ADMISIONES')
+    ) {
       this.loadList();
-    } if (this.rol.includes('ESTUDIANTE')) {
+    }
+    if (this.rol.includes('ESTUDIANTE')) {
       this.loadSolicitud();
     }
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   onclick(data) {
     this.solicitudSeleccionada = data;
@@ -87,7 +99,7 @@ export class ViewSolicitudesComponent implements OnInit {
   }
 
   async loadList() {
-    this.listaDatos = []
+    this.listaDatos = [];
     for (let i = 15; i < 21; i++) {
       await this.loadSolicitudes(i);
     }
@@ -106,15 +118,13 @@ export class ViewSolicitudesComponent implements OnInit {
   loadSolicitudes(IdEstadoTipoSolicitud: number) {
     return new Promise((resolve, reject) => {
       this.sgaMidActualizacionDatosService
-        .get(
-          'solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud,
-        )
+        .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
         .subscribe(
           (response: any) => {
             if (response.status === 200) {
               const data = <Array<any>>response.data.Data;
               const dataInfo = <Array<any>>[];
-              data.forEach(element => {
+              data.forEach((element) => {
                 element.Fecha = momentTimezone
                   .tz(element.Fecha, 'America/Bogota')
                   .format('DD/MM/YYYY');
@@ -128,19 +138,19 @@ export class ViewSolicitudesComponent implements OnInit {
               Swal.fire(
                 this.translate.instant('GLOBAL.error'),
                 this.translate.instant('solicitudes.error'),
-                'info',
-              )
+                'info'
+              );
               resolve([]);
             } else if (response.status === 404) {
               resolve([]);
             }
           },
-          error => {
+          (error) => {
             this.popUpManager.showErrorToast(
-              this.translate.instant('ERROR.general'),
+              this.translate.instant('ERROR.general')
             );
             reject(error);
-          },
+          }
         );
     });
   }
@@ -154,7 +164,7 @@ export class ViewSolicitudesComponent implements OnInit {
           if (response.status === 200) {
             const data = <Array<any>>response.data.Response;
             const dataInfo = <Array<any>>[];
-            data.forEach(element => {
+            data.forEach((element) => {
               element.Fecha = momentTimezone
                 .tz(element.Fecha, 'America/Bogota')
                 .format('DD/MM/YYYY');
@@ -165,32 +175,31 @@ export class ViewSolicitudesComponent implements OnInit {
             Swal.fire(
               this.translate.instant('GLOBAL.info'),
               this.translate.instant('solicitudes.no_data'),
-              'warning',
-            )
+              'warning'
+            );
           } else {
             Swal.fire(
               this.translate.instant('GLOBAL.error'),
               this.translate.instant('solicitudes.error'),
-              'error',
-            )
+              'error'
+            );
           }
         },
         () => {
           this.popUpManager.showErrorToast(
-            this.translate.instant('ERROR.general'),
+            this.translate.instant('ERROR.general')
           );
-        },
+        }
       );
   }
 
   cargarDatosTabla(datosCargados: any[]): void {
-    datosCargados.forEach(registro => {
+    datosCargados.forEach((registro) => {
       registro.Acciones = {
         icon: 'search',
         label: this.translate.instant('solicitudes.tooltip_ver_registro'),
-        class: 'icon-primary'
       };
-    })
+    });
     this.dataSource = new MatTableDataSource(datosCargados);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -201,13 +210,13 @@ export class ViewSolicitudesComponent implements OnInit {
   consultarSolicitudes() {
     this.showTable = false;
     this.cargarDatosTabla([]);
-    this.rol = this.rol?this.rol : this.autenticationService.getRole();
+    this.rol = this.rol ? this.rol : this.autenticationService.getRole();
     this.loadListByRol();
   }
 
   activateTab() {
     this.nuevaSolicitud = undefined;
-    this.solicitudSeleccionada = undefined
+    this.solicitudSeleccionada = undefined;
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
@@ -216,7 +225,10 @@ export class ViewSolicitudesComponent implements OnInit {
   }
 
   nuevoNombre() {
-    sessionStorage.setItem('TerceroSolitud', decrypt(localStorage.getItem('persona_id')));
+    sessionStorage.setItem(
+      'TerceroSolitud',
+      decrypt(localStorage.getItem('persona_id'))
+    );
     this.showSolicitudNombre = true;
     this.showSolicitudID = false;
     this.showTable = false;
@@ -224,7 +236,10 @@ export class ViewSolicitudesComponent implements OnInit {
   }
 
   nuevoID() {
-    sessionStorage.setItem('TerceroSolitud', decrypt(localStorage.getItem('persona_id')));
+    sessionStorage.setItem(
+      'TerceroSolitud',
+      decrypt(localStorage.getItem('persona_id'))
+    );
     this.showSolicitudID = true;
     this.showTable = false;
     this.showSolicitudNombre = false;
