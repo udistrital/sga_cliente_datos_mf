@@ -15,6 +15,8 @@ Cliente para la gestión de datos, parte del Sistema de Gestión Académica. Est
   - Incluye single-spa-angular
 - [tslib](https://github.com/Microsoft/tslib) 2.3.0
 - [Zone.js](https://github.com/angular/angular/tree/master/packages/zone.js) ~0.14.2
+- [@sweetalert2/themes](https://github.com/sweetalert2/sweetalert2-themes) 5.0.16
+- [spinner-util]() 0.0.3
 
 
 ### Variables de Entorno
