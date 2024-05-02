@@ -15,12 +15,10 @@ const routes: Routes = [{
         {
             path: 'list-solicitudes-estudiante',
             component: ListSolicitudesEstudianteComponent,
-//            canActivate: [AuthGuard],
         },
         {
             path: 'ver-solicitudes',
             component: ViewSolicitudesComponent,
-//            canActivate: [AuthGuard],
         }
     ],
 }];

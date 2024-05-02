@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import Swal, { SweetAlertIcon, SweetAlertOptions } from 'sweetalert2';
+// @ts-ignore
+import Swal from 'sweetalert2/dist/sweetalert2';
+import { SweetAlertIcon, SweetAlertOptions } from 'sweetalert2';
 import { TranslateService } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 

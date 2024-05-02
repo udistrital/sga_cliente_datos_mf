@@ -1,7 +1,6 @@
 export const environment = {
     production: true,
-    assets: 'https://pruebasassets.portaloas.udistrital.edu.co/',
-    apiUrl: 'http://localhost:4202/',
+    apiUrl: 'https://sgadatos.portaloas.udistrital.edu.co/',
     TOKEN: {
       AUTORIZATION_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oauth2/authorize',
       CLIENTE_ID: 'e36v1MPQk2jbz9KM4SmKhk8Cyw0a',
@@ -15,5 +14,5 @@ export const environment = {
     SGA_MID_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sga_mid/v1/',
     NUXEO_SERVICE:'https://autenticacion.portaloas.udistrital.edu.co/apioas/gestor_documental_mid/v1',
     TERCEROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/terceros_crud/v1/',
-    SGA_MID_ACTUALIZACION_DATOS_SERVICE: 'http://pruebasapi3.intranetoas.udistrital.edu.co:8548/v1/'
+    SGA_MID_ACTUALIZACION_DATOS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/admisiones_mid/v1/'
 };

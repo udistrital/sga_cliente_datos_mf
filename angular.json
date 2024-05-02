@@ -30,6 +30,7 @@
               "src/assets"
             ],
             "styles": [
+              "src/assets/styles/sga-theme-angular-material.scss",
               "src/styles.scss"
             ],
             "scripts": [
@@ -74,7 +75,7 @@
               "deployUrl": "https://pruebassgadatos.portaloas.udistrital.edu.co/"
             },
             "local": {
-              "deployUrl": "http://localhost:4209/"
+              "deployUrl": "http://localhost:4202/"
             }
           },
           "defaultConfiguration": "local"

@@ -4,7 +4,8 @@ import { ACTUALIZAR_DATOS } from './form-actualizacion-datos';
 import { RESPUESTA_SOLICITUD } from './form-respuesta-solicitud';
 import { HttpErrorResponse } from '@angular/common/http';
 import * as momentTimezone from 'moment-timezone';
-import Swal from 'sweetalert2';
+// @ts-ignore
+import Swal from 'sweetalert2/dist/sweetalert2';
 import { ActualizacionDatos } from 'src/data/models/actualizacion-datos';
 import { RespuestaSolicitud } from 'src/data/models/respuesta-solicitud';
 import { Solicitante } from 'src/data/models/solicitante';
