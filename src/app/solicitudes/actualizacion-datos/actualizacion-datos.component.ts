@@ -178,9 +178,9 @@ export class ActualizacionDatosComponent implements OnInit {
     if (IdTercero !== undefined) {
       this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/terceros/' + IdTercero).subscribe(
         (response: any) => {
-          if (response.status === 200) {
-            this.solicitante = response.data;
-          } else if (response.status === 400) {
+          if (response.Status === 200) {
+            this.solicitante = response.Data;
+          } else if (response.Status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.solicitante = new Solicitante();
             this.loading = false;
@@ -206,25 +206,25 @@ export class ActualizacionDatosComponent implements OnInit {
     if (IdSolicitud !== undefined) {
       this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolicitud).subscribe(
         (response: any) => {
-          if (response.status === 200) {
+          if (response.Status === 200) {
             this.solicitudForm.btn = '';
             this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor =
-              momentTimezone.tz(response.data.Resultado.FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
+              momentTimezone.tz(response.Data.Resultado.FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].valor =
-              momentTimezone.tz(response.data.Resultado.FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
+              momentTimezone.tz(response.Data.Resultado.FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoActual')].valor = response.data.Resultado.TipoDocumentoActual;
+            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoActual')].valor = response.Data.Resultado.TipoDocumentoActual;
             this.solicitudForm.campos[this.getIndexForm('TipoDocumentoActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('NumeroActual')].valor = response.data.Resultado.NumeroActual;
+            this.solicitudForm.campos[this.getIndexForm('NumeroActual')].valor = response.Data.Resultado.NumeroActual;
             this.solicitudForm.campos[this.getIndexForm('NumeroActual')].deshabilitar = true;
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionActual')].valor =
-              momentTimezone.tz(response.data.Resultado.FechaExpedicionActual, 'America/Bogota').format('DD/MM/YYYY');
+              momentTimezone.tz(response.Data.Resultado.FechaExpedicionActual, 'America/Bogota').format('DD/MM/YYYY');
             this.solicitudForm.campos[this.getIndexForm('FechaExpedicionActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.data.Resultado.TipoDocumentoNuevo;
+            this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.Data.Resultado.TipoDocumentoNuevo;
             this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.data.Resultado.NumeroNuevo;
+            this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.Data.Resultado.NumeroNuevo;
             this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].deshabilitar = true;
-            this.solicitudForm.Documento = response.data.Resultado.Documento;
+            this.solicitudForm.Documento = response.Data.Resultado.Documento;
             const files = []
             if (this.solicitudForm.Documento + '' !== '0') {
               files.push({ Id: this.solicitudForm.Documento, key: 'Documento' });
@@ -244,9 +244,9 @@ export class ActualizacionDatosComponent implements OnInit {
               )
             }
             this.loading = false;
-          } else if (response.status === 404) {
+          } else if (response.Status === 404) {
             this.loading = false;
-          } else if (response.status === 400) {
+          } else if (response.Status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.loading = false;
           }
@@ -274,7 +274,7 @@ export class ActualizacionDatosComponent implements OnInit {
     this.solicitudRespuesta.Aprobado = this.respuestaSolicitudForm.campos[1].valor;
     this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', this.solicitudRespuesta).subscribe(
       (response: any) => {
-        if (response.status === 200) {
+        if (response.Status === 200) {
           this.loading = false;
           this.loadInfoById();
           Swal.fire({
@@ -287,7 +287,7 @@ export class ActualizacionDatosComponent implements OnInit {
               this.solicitudEnviada.emit(true);
             }
           });
-        } else if (response.status === 400) {
+        } else if (response.Status === 400) {
           this.loading = false;
           this.popUpManager.showErrorToast(this.translate.instant('solicitudes.error'));
         }
@@ -304,17 +304,17 @@ export class ActualizacionDatosComponent implements OnInit {
     this.SoporteDocumento = [];
     this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolcitud).subscribe(
       (response: any) => {
-        if (response.status === 200) {
+        if (response.Status === 200) {
           this.solicitudForm.btn = '';
           this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].valor =
-            momentTimezone.tz(response.data.Resultado.FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
+            momentTimezone.tz(response.Data.Resultado.FechaExpedicionNuevo, 'America/Bogota').format('YYYY-MM-DD');
           this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].deshabilitar = true;
-          this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.data.Resultado.TipoDocumentoNuevo;
+          this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor = response.Data.Resultado.TipoDocumentoNuevo;
           this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].deshabilitar = true;
-          this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.data.Resultado.NumeroNuevo;
+          this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = response.Data.Resultado.NumeroNuevo;
           this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].deshabilitar = true;
           this.solicitudForm.campos[this.getIndexForm('Documento')].deshabilitar = true;
-          this.solicitudForm.Documento = response.data.Resultado.Documento;
+          this.solicitudForm.Documento = response.Data.Resultado.Documento;
           const files = []
           if (this.solicitudForm.Documento + '' !== '0') {
             files.push({ Id: this.solicitudForm.Documento, key: 'Documento' });
@@ -333,7 +333,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 },
               )
           }
-        } else if (response.status === 404) {
+        } else if (response.Status === 404) {
           this.solicitudForm.campos[this.getIndexForm('FechaExpedicionNuevo')].deshabilitar = false;
           this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].deshabilitar = false;
           this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].deshabilitar = false;
@@ -460,7 +460,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 Solicitud.TipoSolicitud = 3;
                 this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', Solicitud).subscribe(
                   (res: any) => {
-                    if (res.status === 200) {
+                    if (res.Status === 200) {
                       this.loading = false;
                       Swal.fire({
                         icon: 'success',
