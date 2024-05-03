@@ -171,9 +171,9 @@ export class ActualizacionNombresComponent implements OnInit {
     if (IdTercero !== undefined) {
       this.sgaMidTerceroService.get('personas/' + IdTercero + '/info-solicitante').subscribe(
         (response: any) => {
-          if (response.status === 200) {
-            this.solicitante = response.data;
-          } else if (response.status === 400) {
+          if (response.Status === 200) {
+            this.solicitante = response.Data;
+          } else if (response.Status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.solicitante = new Solicitante();
             this.loading = false;
@@ -199,20 +199,20 @@ export class ActualizacionNombresComponent implements OnInit {
     if (IdSolicitud !== undefined) {
       this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolicitud).subscribe(
         (response: any) => {
-          if (response.status === 200) {
+          if (response.Status === 200) {
             this.solicitudForm.btn = '';
-            const date = moment(response.data.Resultado.FechaExpedicionNuevo, 'DD/MM/YYYY').toDate();
+            const date = moment(response.Data.Resultado.FechaExpedicionNuevo, 'DD/MM/YYYY').toDate();
             this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor =
-              momentTimezone.tz(response.data.Resultado.FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
-            this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor = response.data.Resultado.NombreActual;
+              momentTimezone.tz(response.Data.Resultado.FechaSolicitud, 'America/Bogota').format('DD/MM/YYYY');
+            this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor = response.Data.Resultado.NombreActual;
             this.solicitudForm.campos[this.getIndexForm('NombreActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].valor = response.data.Resultado.ApellidoActual;
+            this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].valor = response.Data.Resultado.ApellidoActual;
             this.solicitudForm.campos[this.getIndexForm('ApellidoActual')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.data.Resultado.NombreNuevo;
+            this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.Data.Resultado.NombreNuevo;
             this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].deshabilitar = true;
-            this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.data.Resultado.ApellidoNuevo;
+            this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.Data.Resultado.ApellidoNuevo;
             this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = true;
-            this.solicitudForm.Documento = response.data.Resultado.Documento;
+            this.solicitudForm.Documento = response.Data.Resultado.Documento;
             const files = []
             if (this.solicitudForm.Documento + '' !== '0') {
               files.push({ Id: this.solicitudForm.Documento });
@@ -235,9 +235,9 @@ export class ActualizacionNombresComponent implements OnInit {
                 );
             }
             this.loading = false;
-          } else if (response.status === 404) {
+          } else if (response.Status === 404) {
             this.loading = false;
-          } else if (response.status === 400) {
+          } else if (response.Status === 400) {
             this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
             this.loading = false;
           }
@@ -263,7 +263,7 @@ export class ActualizacionNombresComponent implements OnInit {
     this.solicitudRespuesta.Aprobado = this.respuestaSolicitudForm.campos[1].valor;
     this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', this.solicitudRespuesta).subscribe(
       (response: any) => {
-        if (response.status === 200) {
+        if (response.Status === 200) {
           this.loading = false;
           this.loadInfoById();
           Swal.fire({
@@ -276,7 +276,7 @@ export class ActualizacionNombresComponent implements OnInit {
               this.solicitudEnviada.emit(true);
             }
           });
-        } else if (response.status === 400) {
+        } else if (response.Status === 400) {
           this.loading = false;
           this.popUpManager.showErrorToast(this.translate.instant('solicitudes.error'));
         }
@@ -293,12 +293,12 @@ export class ActualizacionNombresComponent implements OnInit {
     this.SoporteDocumento = [];
     this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolcitud).subscribe(
       (response: any) => {
-        if (response.status === 200) {
-          this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.data.Resultado.NombreNuevo;
+        if (response.Status === 200) {
+          this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.Data.Resultado.NombreNuevo;
           this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].deshabilitar = true;
-          this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.data.Resultado.ApellidoNuevo;
+          this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.Data.Resultado.ApellidoNuevo;
           this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = true;
-          this.solicitudForm.Documento = response.data.Resultado.Documento;
+          this.solicitudForm.Documento = response.Data.Resultado.Documento;
           const files = []
           if (this.solicitudForm.Documento + '' !== '0') {
             files.push({ Id: this.solicitudForm.Documento });
@@ -321,15 +321,15 @@ export class ActualizacionNombresComponent implements OnInit {
                 },
               );
           }
-        } else if (response.status === 404) {
+        } else if (response.Status === 404) {
           this.sgaMidActualizacionDatosService.get('solicitudes-evaluacion/' + IdSolcitud + '/18').subscribe(
             (response: any) => {
-              if (response.status === 200) {
-                this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.data.Resultado.NombreNuevo;
+              if (response.Status === 200) {
+                this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = response.Data.Resultado.NombreNuevo;
                 this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].deshabilitar = true;
-                this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.data.Resultado.ApellidoNuevo;
+                this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = response.Data.Resultado.ApellidoNuevo;
                 this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = true;
-                this.solicitudForm.Documento = response.data.Resultado.Documento;
+                this.solicitudForm.Documento = response.Data.Resultado.Documento;
                 const files = []
                 if (this.solicitudForm.Documento + '' !== '0') {
                   files.push({ Id: this.solicitudForm.Documento });
@@ -354,7 +354,7 @@ export class ActualizacionNombresComponent implements OnInit {
                 } else {
                   this.loading = false;
                 }
-              } else if (response.status === 404) {
+              } else if (response.Status === 404) {
                 this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = false;
                 this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].deshabilitar = false;
                 this.loading = false;
@@ -481,7 +481,7 @@ export class ActualizacionNombresComponent implements OnInit {
                 }
                 this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', Solicitud).subscribe(
                   (res: any) => {
-                    if (res.status === 200) {
+                    if (res.Status === 200) {
                       this.loading = false;
                       Swal.fire({
                         icon: 'success',
