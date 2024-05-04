@@ -162,7 +162,7 @@ export class ViewSolicitudesComponent implements OnInit {
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
-            const data = <Array<any>>response.data.Response;
+            const data = <Array<any>>response.Data.Response;
             const dataInfo = <Array<any>>[];
             data.forEach((element) => {
               element.Fecha = momentTimezone
