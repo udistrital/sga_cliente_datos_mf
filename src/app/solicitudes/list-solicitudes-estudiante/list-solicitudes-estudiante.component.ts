@@ -94,7 +94,7 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
         .subscribe(
           (response: any) => {
             if (response.Status === 200) {
-              const data = <Array<any>>response.data.Resultado;
+              const data = <Array<any>>response.Data.Resultado;
               const dataInfo = <Array<any>>[];
               data.forEach(element => {
                 element.Fecha = momentTimezone
