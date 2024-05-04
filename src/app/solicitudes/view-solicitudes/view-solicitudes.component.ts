@@ -121,8 +121,8 @@ export class ViewSolicitudesComponent implements OnInit {
         .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
         .subscribe(
           (response: any) => {
-            if (response.status === 200) {
-              const data = <Array<any>>response.data.Data;
+            if (response.Status === 200) {
+              const data = <Array<any>>response.Data.Data;
               const dataInfo = <Array<any>>[];
               data.forEach((element) => {
                 element.Fecha = momentTimezone
@@ -134,14 +134,14 @@ export class ViewSolicitudesComponent implements OnInit {
                 this.listaDatos.push(dataInfo);
               }
               resolve(dataInfo);
-            } else if (response.status === 400) {
+            } else if (response.Status === 400) {
               Swal.fire(
                 this.translate.instant('GLOBAL.error'),
                 this.translate.instant('solicitudes.error'),
                 'info'
               );
               resolve([]);
-            } else if (response.status === 404) {
+            } else if (response.Status === 404) {
               resolve([]);
             }
           },
@@ -161,8 +161,8 @@ export class ViewSolicitudesComponent implements OnInit {
       .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
         (response: any) => {
-          if (response.status === 200) {
-            const data = <Array<any>>response.data.Response;
+          if (response.Status === 200) {
+            const data = <Array<any>>response.Data.Response;
             const dataInfo = <Array<any>>[];
             data.forEach((element) => {
               element.Fecha = momentTimezone
@@ -171,7 +171,7 @@ export class ViewSolicitudesComponent implements OnInit {
               dataInfo.push(element);
             });
             this.cargarDatosTabla(dataInfo);
-          } else if (response.status === 404) {
+          } else if (response.Status === 404) {
             Swal.fire(
               this.translate.instant('GLOBAL.info'),
               this.translate.instant('solicitudes.no_data'),

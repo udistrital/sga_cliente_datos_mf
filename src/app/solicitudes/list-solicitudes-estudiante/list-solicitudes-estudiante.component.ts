@@ -93,8 +93,8 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
         .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
         .subscribe(
           (response: any) => {
-            if (response.status === 200) {
-              const data = <Array<any>>response.data.Resultado;
+            if (response.Status === 200) {
+              const data = <Array<any>>response.Data.Resultado;
               const dataInfo = <Array<any>>[];
               data.forEach(element => {
                 element.Fecha = momentTimezone
@@ -106,13 +106,13 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
                 this.listaDatos.push(dataInfo);
               }
               resolve(dataInfo);
-            } else if (response.status === 400) {
+            } else if (response.Status === 400) {
               this.popUpManager.showInfoToast(
                 'info',
                 this.translate.instant('solicitudes.error')
               );
               resolve([]);
-            } else if (response.status === 404) {
+            } else if (response.Status === 404) {
               resolve([]);
             }
           },
@@ -132,8 +132,8 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
       .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
         (response: any) => {
-          if (response.status === 200) {
-            const data = <Array<any>>response.data.Resultado;
+          if (response.Status === 200) {
+            const data = <Array<any>>response.Data.Resultado;
             const dataInfo = <Array<any>>[];
             data.forEach(element => {
               element.Fecha = momentTimezone
@@ -142,7 +142,7 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
               dataInfo.push(element);
             });
             this.cargarDatosTabla(dataInfo);
-          } else if (response.status === 404) {
+          } else if (response.Status === 404) {
             this.popUpManager.showInfoToast(
               'info',
               this.translate.instant('solicitudes.no_data')
