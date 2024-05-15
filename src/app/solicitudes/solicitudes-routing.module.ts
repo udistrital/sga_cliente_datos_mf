@@ -10,14 +10,10 @@ import { ActualizacionNombresComponent } from "./actualizacion-nombres/actualiza
 
 const routes: Routes = [{
     path: '',
-    component: SolicitudesComponent,
+    component: ListSolicitudesEstudianteComponent,
     children: [
         {
-            path: 'list-solicitudes-estudiante',
-            component: ListSolicitudesEstudianteComponent,
-        },
-        {
-            path: 'ver-solicitudes',
+            path: 'actualizacion-datos',
             component: ViewSolicitudesComponent,
         }
     ],
