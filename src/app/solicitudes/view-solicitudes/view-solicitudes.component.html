@@ -4,7 +4,7 @@
       {{ "MENU.gestionar_solicitudes.solicitudes_actualizacion" | translate }}
     </mat-card-title>
     <mat-card-subtitle>
-      <p>Bienvenido al módulo de actualización de datos. Aquí puedes actualizar tus nombres y tu identificación, así como consultar el historial de tus solicitudes.</p>
+      <p>{{ "solicitudes.bienvenida" | translate }}</p>
     </mat-card-subtitle>
   </mat-card-header>
 
@@ -22,12 +22,12 @@
     </div>
 
     <div class="instruction" *ngIf="!showSolicitudID && !showSolicitudNombre">
-      <p>Para realizar una nueva solicitud, selecciona uno de los botones de arriba. Para ver el detalle de una solicitud existente, haz clic en el ícono de lupa en la tabla de historial.</p>
+      <p>{{ "solicitudes.instrucciones" | translate }}</p>
     </div>
 
     <mat-card *ngIf="!showSolicitudID && !showSolicitudNombre">
       <mat-card-content>
-        <h3>Historial de solicitudes</h3>
+        <h3>{{ "solicitudes.historial_titulo" | translate }}</h3>
         <div style="overflow-x:auto;">
           <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
             <ng-container *ngFor="let columna of displayedColumns" [matColumnDef]="columna">
@@ -69,4 +69,3 @@
     </mat-card-content>
   </mat-card-content>
 </mat-card>
-
