@@ -1,130 +1,72 @@
 <mat-card>
-  <mat-card-header>
+  <mat-card-header class="header">
     <mat-card-title>
       {{ "MENU.gestionar_solicitudes.solicitudes_actualizacion" | translate }}
     </mat-card-title>
+    <mat-card-subtitle>
+      <p>Bienvenido al módulo de actualización de datos. Aquí puedes actualizar tus nombres y tu identificación, así como consultar el historial de tus solicitudes.</p>
+    </mat-card-subtitle>
   </mat-card-header>
-  <mat-card-content *ngIf="showTable">
-    <mat-card>
+
+  <mat-card-content>
+    <div class="top-buttons margin-y" *ngIf="!showSolicitudID && !showSolicitudNombre">
+      <p>{{ "solicitudes.generar_solicitud" | translate }}:</p>
+      <div class="button-container">
+        <button mat-flat-button color="accent" (click)="nuevoNombre()">
+          {{ "solicitudes.generar_nombre_boton" | translate }}
+        </button>
+        <button mat-flat-button color="accent" (click)="nuevoID()">
+          {{ "solicitudes.generar_id_boton" | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="instruction" *ngIf="!showSolicitudID && !showSolicitudNombre">
+      <p>Para realizar una nueva solicitud, selecciona uno de los botones de arriba. Para ver el detalle de una solicitud existente, haz clic en el ícono de lupa en la tabla de historial.</p>
+    </div>
+
+    <mat-card *ngIf="!showSolicitudID && !showSolicitudNombre">
       <mat-card-content>
-        <table mat-table [dataSource]="dataSource" matSort>
-          <ng-container
-            *ngFor="let columna of displayedColumns"
-            [matColumnDef]="columna"
-          >
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              {{ nombresColumnas[columna] | translate }}
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let fila; let i = index"
-              [ngClass]="{
-                'row-par': i % 2 === 0,
-                'row-impar': i % 2 !== 0,
-                'row-hover': hoverIndex === i
-              }"
-              (mouseover)="hoverIndex = i"
-              (mouseout)="hoverIndex = null"
-            >
-              <ng-container *ngIf="columna != 'Acciones'">
-                {{ fila[columna] }}
-              </ng-container>
-
-              <ng-container *ngIf="columna == 'Acciones'">
-                <button
-                  mat-icon-button
-                  color="accent"
-                  [matTooltip]="fila[columna]?.label"
-                  (click)="onclick(fila)"
-                >
-                  <mat-icon [class]="fila[columna]?.class">{{
-                    fila[columna]?.icon
-                  }}</mat-icon>
-                </button>
-              </ng-container>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let fila; columns: displayedColumns"></tr>
-        </table>
-
-        <mat-paginator
-          [pageSize]="10"
-          [pageSizeOptions]="[]"
-          showFirstLastButtons
-        ></mat-paginator>
-
-        <br />
-
-        <div *ngIf="isStudent">
-          {{ "solicitudes.generar_solicitud" | translate }}:
-          <br />
-          <br />
-          <div
-            style="
-              display: flex;
-              gap: 1rem;
-              flex-wrap: wrap;
-            "
-          >
-            <button
-              mat-flat-button
-              color="accent"
-              (click)="nuevoNombre()"
-            >
-              {{ "solicitudes.generar_nombre_boton" | translate }}
-            </button>
-            <button
-              mat-flat-button
-              color="accent"
-              (click)="nuevoID()"
-            >
-              {{ "solicitudes.generar_id_boton" | translate }}
-            </button>
-          </div>
+        <h3>Historial de solicitudes</h3>
+        <div style="overflow-x:auto;">
+          <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+            <ng-container *ngFor="let columna of displayedColumns" [matColumnDef]="columna">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ nombresColumnas[columna] | translate }}</th>
+              <td mat-cell *matCellDef="let fila; let i = index" [ngClass]="{'row-par': i % 2 === 0, 'row-impar': i % 2 !== 0, 'row-hover': hoverIndex === i}" (mouseover)="hoverIndex = i" (mouseout)="hoverIndex = null">
+                <ng-container *ngIf="columna != 'Acciones'">
+                  {{ fila[columna] }}
+                </ng-container>
+                <ng-container *ngIf="columna == 'Acciones'">
+                  <button mat-icon-button color="accent" [matTooltip]="fila[columna]?.label" (click)="onclick(fila)">
+                    <mat-icon [class]="fila[columna]?.class">{{ fila[columna]?.icon }}</mat-icon>
+                  </button>
+                </ng-container>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let fila; columns: displayedColumns"></tr>
+          </table>
         </div>
 
-        <br />
-
-        <button
-          (click)="activateTab()"
-          mat-flat-button
-          color="primary"
-          disabled="true"
-          class="margin-y"
-        >
-          <mat-icon>keyboard_arrow_left</mat-icon>
-          {{ "GLOBAL.regresar" | translate }}
-        </button>
+        <mat-paginator [pageSize]="10" [pageSizeOptions]="[]" showFirstLastButtons></mat-paginator>
       </mat-card-content>
     </mat-card>
-  </mat-card-content>
 
-  <mat-card-content *ngIf="showSolicitudID">
-    <ngx-actualizacion-datos
-      [nuevaSolicitud]="nuevaSolicitud"
-      [dataSolicitud]="solicitudSeleccionada"
-      (solicitudEnviada)="activateTab()"
-    >
-    </ngx-actualizacion-datos>
-    <button (click)="activateTab()" mat-flat-button color="primary" class="margin-y">
-      <mat-icon>keyboard_arrow_left</mat-icon>
-      {{ "GLOBAL.regresar" | translate }}
-    </button>
-  </mat-card-content>
+    <mat-card-content *ngIf="showSolicitudID">
+      <ngx-actualizacion-datos [nuevaSolicitud]="nuevaSolicitud" [dataSolicitud]="solicitudSeleccionada" (solicitudEnviada)="activateTab()"></ngx-actualizacion-datos>
+      <button (click)="activateTab()" mat-flat-button color="primary" class="margin-y">
+        <mat-icon>keyboard_arrow_left</mat-icon>
+        {{ "GLOBAL.regresar" | translate }}
+      </button>
+    </mat-card-content>
 
-  <mat-card-content *ngIf="showSolicitudNombre">
-    <actualizacion-nombres
-      [nuevaSolicitud]="nuevaSolicitud"
-      [dataSolicitud]="solicitudSeleccionada"
-      (solicitudEnviada)="activateTab()"
-    >
-    </actualizacion-nombres>
-
-    <button (click)="activateTab()" mat-flat-button color="primary" class="margin-y">
-      <mat-icon>keyboard_arrow_left</mat-icon>
-      {{ "GLOBAL.regresar" | translate }}
-    </button>
+    <mat-card-content *ngIf="showSolicitudNombre">
+      <actualizacion-nombres [nuevaSolicitud]="nuevaSolicitud" [dataSolicitud]="solicitudSeleccionada" (solicitudEnviada)="activateTab()"></actualizacion-nombres>
+      <button (click)="activateTab()" mat-flat-button color="primary" class="margin-y">
+        <mat-icon>keyboard_arrow_left</mat-icon>
+        {{ "GLOBAL.regresar" | translate }}
+      </button>
+    </mat-card-content>
   </mat-card-content>
 </mat-card>
+
