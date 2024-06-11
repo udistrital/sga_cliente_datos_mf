@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { PopUpManager } from 'src/app/managers/popup_manager';
-import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import * as momentTimezone from 'moment-timezone';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { decrypt } from 'src/app/utils/util-encrypt';
+import { ApiMidResponse } from 'src/app/models/api-mid-response.interface';
 
 @Component({
   selector: 'list-solicitudes-estudiante',
@@ -20,7 +20,14 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
 
-  displayedColumns: string[] = ['Numero', 'Fecha', 'Tipo', 'Estado', 'Observacion', 'Acciones'];
+  displayedColumns: string[] = [
+    'Numero',
+    'Fecha',
+    'Tipo',
+    'Estado',
+    'Observacion',
+    'Acciones',
+  ];
   nombresColumnas = [];
 
   showTable: boolean;
@@ -32,31 +39,31 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   constructor(
     private translate: TranslateService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
-    private popUpManager: PopUpManager,
-    private autenticationService: ImplicitAutenticationService,
-  ) {
+    private popUpManager: PopUpManager
+  ) {}
+
+  ngOnInit() {
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
-    this.nombresColumnas["Numero"] = "solicitudes.numero";
-    this.nombresColumnas["Fecha"] = "solicitudes.fecha";
-    this.nombresColumnas["Tipo"] = "solicitudes.tipo";
-    this.nombresColumnas["Estado"] = "solicitudes.estado";
-    this.nombresColumnas["Observacion"] = "solicitudes.observacion";
-    this.nombresColumnas["Acciones"] = "GLOBAL.acciones";
+    this.nombresColumnas['Numero'] = 'solicitudes.numero';
+    this.nombresColumnas['Fecha'] = 'solicitudes.fecha';
+    this.nombresColumnas['Tipo'] = 'solicitudes.tipo';
+    this.nombresColumnas['Estado'] = 'solicitudes.estado';
+    this.nombresColumnas['Observacion'] = 'solicitudes.observacion';
+    this.nombresColumnas['Acciones'] = 'GLOBAL.acciones';
 
-    this.autenticationService.getRole().then((rol)=> {
-      this.rol = rol;
-      if (this.rol.includes('ADMIN_SGA') || this.rol.includes('ASISTENTE_ADMISIONES')) {
-        this.loadList();
-      } if (this.rol.includes('ESTUDIANTE')) {
-        this.loadSolicitud();
-      }
-      this.cargarDatosTabla([]);
-    });
+    // ARREGLAR
+    // this.autenticationService.getRole().then((rol)=> {
+    //   this.rol = rol;
+    //   if (this.rol.includes('ADMIN_SGA') || this.rol.includes('ASISTENTE_ADMISIONES')) {
+    this.loadList();
+    //   } if (this.rol.includes('ESTUDIANTE')) {
+    //     this.loadSolicitud();
+    //   }
+    //   this.cargarDatosTabla([]);
+    // });
   }
-
-  ngOnInit() {}
 
   onclick(data) {
     sessionStorage.setItem('TerceroSolitud', data.TerceroId);
@@ -92,11 +99,11 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
       this.sgaMidActualizacionDatosService
         .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
         .subscribe(
-          (response: any) => {
-            if (response.Status === 200) {
-              const data = <Array<any>>response.Data.Resultado;
+          (response: ApiMidResponse<any>) => {
+            if (response.Status === 200 && response.Success === true) {
+              const data = <Array<any>>response.Data.Data;
               const dataInfo = <Array<any>>[];
-              data.forEach(element => {
+              data.forEach((element) => {
                 element.Fecha = momentTimezone
                   .tz(element.Fecha, 'America/Bogota')
                   .format('DD/MM/YYYY');
@@ -116,12 +123,12 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
               resolve([]);
             }
           },
-          error => {
+          (error) => {
             this.popUpManager.showErrorToast(
-              this.translate.instant('ERROR.general'),
+              this.translate.instant('ERROR.general')
             );
             reject(error);
-          },
+          }
         );
     });
   }
@@ -135,7 +142,7 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
           if (response.Status === 200) {
             const data = <Array<any>>response.Data.Resultado;
             const dataInfo = <Array<any>>[];
-            data.forEach(element => {
+            data.forEach((element) => {
               element.Fecha = momentTimezone
                 .tz(element.Fecha, 'America/Bogota')
                 .format('DD/MM/YYYY');
@@ -156,20 +163,19 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
         },
         () => {
           this.popUpManager.showErrorToast(
-            this.translate.instant('ERROR.general'),
+            this.translate.instant('ERROR.general')
           );
-        },
+        }
       );
   }
 
   cargarDatosTabla(datosCargados: any[]): void {
-    datosCargados.forEach(registro => {
+    datosCargados.forEach((registro) => {
       registro.Acciones = {
         icon: 'search',
-        label: this.translate.instant('solicitudes.tooltip_ver_registro')
-        
+        label: this.translate.instant('solicitudes.tooltip_ver_registro'),
       };
-    })
+    });
     this.dataSource = new MatTableDataSource(datosCargados);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

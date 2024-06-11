@@ -6,7 +6,6 @@ import { TranslateService } from '@ngx-translate/core';
 import * as momentTimezone from 'moment-timezone';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
-import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 // @ts-ignore
 import Swal from 'sweetalert2/dist/sweetalert2';
@@ -48,8 +47,7 @@ export class ViewSolicitudesComponent implements OnInit {
   constructor(
     private translate: TranslateService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
-    private popUpManager: PopUpManager,
-    private autenticationService: ImplicitAutenticationService
+    private popUpManager: PopUpManager
   ) {
     this.showTable = true;
     this.showSolicitudID = false;
@@ -61,12 +59,14 @@ export class ViewSolicitudesComponent implements OnInit {
     this.nombresColumnas['Observacion'] = 'solicitudes.observacion';
     this.nombresColumnas['Acciones'] = 'GLOBAL.acciones';
 
-    this.autenticationService.getRole().then((rol) => {
-      this.rol = rol;
-      this.isStudent = this.rol.includes('ESTUDIANTE');
-      this.loadListByRol();
-      this.cargarDatosTabla([]);
-    });
+
+    //ARREGLAR
+    // this.autenticationService.getRole().then((rol) => {
+    //   this.rol = rol;
+    //   this.isStudent = this.rol.includes('ESTUDIANTE');
+    //   this.loadListByRol();
+    //   this.cargarDatosTabla([]);
+    // });
   }
 
   loadListByRol() {
@@ -210,7 +210,8 @@ export class ViewSolicitudesComponent implements OnInit {
   consultarSolicitudes() {
     this.showTable = false;
     this.cargarDatosTabla([]);
-    this.rol = this.rol ? this.rol : this.autenticationService.getRole();
+    // ARREGLAR
+    // this.rol = this.rol ? this.rol : this.autenticationService.getRole();
     this.loadListByRol();
   }
 
