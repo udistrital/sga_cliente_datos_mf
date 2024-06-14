@@ -9,11 +9,12 @@ import Swal from 'sweetalert2/dist/sweetalert2';
 import { ActualizacionDatos } from 'src/data/models/actualizacion-datos';
 import { RespuestaSolicitud } from 'src/data/models/respuesta-solicitud';
 import { Solicitante } from 'src/data/models/solicitante';
-import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
+import { TercerosMidService } from 'src/data/services/terceros_mid.service';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
-import { SgaMidTercerosService } from 'src/data/services/terceros.service';
+import { TercerosService } from 'src/data/services/terceros.service';
+import { UserService } from 'src/data/services/user.service';
 
 @Component({
   selector: 'ngx-actualizacion-datos',
@@ -23,139 +24,15 @@ import { SgaMidTercerosService } from 'src/data/services/terceros.service';
 export class ActualizacionDatosComponent implements OnInit {
   @Input()
   set nuevaSolicitud(nuevaSolicitud: boolean) {
+    console.log('nuevaSolicitud', nuevaSolicitud);
     this.solicitudNueva = nuevaSolicitud;
-    // ARREGLAR
-    // this.autenticationService.getRole().then((rol) => {
-    //   this.rol = rol;
-    //   if (nuevaSolicitud) {
-    //     this.solicitudDatos = new ActualizacionDatos();
-    //     this.solicitudForm.campos[
-    //       this.getIndexForm('TipoDocumentoNuevo')
-    //     ].valor = '';
-    //     this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = '';
-    //     this.solicitudForm.campos[
-    //       this.getIndexForm('FechaExpedicionNuevo')
-    //     ].valor = '';
-    //     this.solicitudForm.campos[this.getIndexForm('Documento')].urlTemp = '';
-    //     this.solicitudForm.campos[this.getIndexForm('Documento')].valor = '';
-    //     this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-    //       'noMostrar';
-    //     this.solicitudForm.btn = 'Enviar';
-    //     this.Admin = false;
-
-    //     if (this.rol.includes('ESTUDIANTE')) {
-    //       this.loadInfo();
-    //       this.solicitudForm.campos[
-    //         this.getIndexForm('FechaExpedicionNuevo')
-    //       ].deshabilitar = false;
-    //       this.solicitudForm.campos[
-    //         this.getIndexForm('TipoDocumentoNuevo')
-    //       ].deshabilitar = false;
-    //       this.solicitudForm.campos[
-    //         this.getIndexForm('NumeroNuevo')
-    //       ].deshabilitar = false;
-    //       this.solicitudForm.campos[
-    //         this.getIndexForm('Documento')
-    //       ].deshabilitar = false;
-    //       this.respuestaSolicitudForm.campos.forEach((campo) => {
-    //         campo.deshabilitar = true;
-    //       });
-    //       this.loading = false;
-    //     }
-    //   } else {
-    //     this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
-    //     if (
-    //       this.rol.includes('ADMIN_SGA') ||
-    //       this.rol.includes('ASISTENTE_ADMISIONES')
-    //     ) {
-    //       this.Admin = false;
-    //     }
-    //     if (this.rol.includes('ESTUDIANTE')) {
-    //       this.Admin = false;
-    //       this.loadInfo();
-    //     }
-    //     this.loadInfoById();
-    //   }
-    // });
+    this.procesarNuevaSolicitud();
   }
 
   @Input()
   set dataSolicitud(dataSolicitud: any) {
-    // ARREGLAR
-    // this.autenticationService.getRole().then((rol) => {
-    //   this.rol = rol;
-    //   this.solicitudRespuesta = new RespuestaSolicitud();
-    //   this.solicitudRespuesta.Aprobado = false;
-    //   this.solicitudRespuesta.Observacion = '';
-    //   this.solicitudRespuesta.SolicitudId = 0;
-    //   this.respuestaSolicitudForm.campos[1].valor = false;
-
-    //   if (dataSolicitud !== undefined) {
-    //     this.solicitudRespuesta.Observacion = dataSolicitud.Observacion;
-    //     if (dataSolicitud.Estado === 'Acta aprobada') {
-    //       this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-    //         'noMostrar';
-    //       this.respuestaSolicitudForm.campos[1].valor = true;
-    //       this.respuestaSolicitudForm.btn = '';
-    //       this.Admin = true;
-    //       this.respuestaSolicitudForm.campos.forEach((campo) => {
-    //         campo.deshabilitar = true;
-    //       });
-    //     }
-
-    //     if (dataSolicitud.Estado === 'Rectificar') {
-    //       this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-    //         'noMostrar';
-    //       if (
-    //         this.rol.includes('ADMIN_SGA') ||
-    //         this.rol.includes('ASISTENTE_ADMISIONES')
-    //       ) {
-    //         this.respuestaSolicitudForm.campos.forEach((campo) => {
-    //           campo.deshabilitar = false;
-    //         });
-    //         this.respuestaSolicitudForm.btn = 'Enviar';
-    //         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
-    //       }
-    //     }
-
-    //     if (dataSolicitud.Estado === 'Radicada') {
-    //       if (
-    //         this.rol.includes('ADMIN_SGA') ||
-    //         this.rol.includes('ASISTENTE_ADMISIONES')
-    //       ) {
-    //         this.respuestaSolicitudForm.campos.forEach((campo) => {
-    //           campo.deshabilitar = false;
-    //         });
-    //         this.respuestaSolicitudForm.btn = 'Enviar';
-    //         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
-    //       }
-    //       if (this.rol.includes('ESTUDIANTE')) {
-    //         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-    //           'noMostrar';
-    //       }
-    //     }
-
-    //     if (dataSolicitud.Estado === 'Rechazada') {
-    //       this.respuestaSolicitudForm.btn = '';
-    //       this.Admin = true;
-    //       this.respuestaSolicitudForm.campos.forEach((campo) => {
-    //         campo.deshabilitar = true;
-    //       });
-    //       if (
-    //         this.rol.includes('ADMIN_SGA') ||
-    //         this.rol.includes('ASISTENTE_ADMISIONES')
-    //       ) {
-    //         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-    //           'noMostrar';
-    //       }
-    //       if (this.rol.includes('ESTUDIANTE')) {
-    //         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
-    //       }
-    //     }
-    //   } else {
-    //     this.Admin = false;
-    //   }
-    // });
+    console.log('dataSolicitud', dataSolicitud);
+    this.procesarDataSolicitud(dataSolicitud);
   }
 
   @Output() solicitudEnviada: EventEmitter<boolean> = new EventEmitter();
@@ -168,7 +45,6 @@ export class ActualizacionDatosComponent implements OnInit {
   tipoDocumento: any[];
   filesUp: any;
   SoporteDocumento: any;
-  rol: any;
   Admin: boolean = false;
   loading: boolean;
   solicitudNueva: Boolean;
@@ -176,40 +52,46 @@ export class ActualizacionDatosComponent implements OnInit {
 
   constructor(
     private translate: TranslateService,
-    private tercerosService: SgaMidTercerosService,
-    private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
+    private tercerosService: TercerosService,
+    private tercerosMidService: TercerosMidService,
     private newNuxeoService: NewNuxeoService,
-    private popUpManager: PopUpManager
+    private popUpManager: PopUpManager,
+    private userService: UserService
   ) {
+    this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.construirForm();
+    });
+  }
+
+  async ngOnInit() {
     this.solicitudForm = ACTUALIZAR_DATOS;
     this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
     this.loading = true;
     this.Admin = false;
-    // ARREGLAR
-    // this.autenticationService.getRole().then((rol) => {
-    //   this.rol = rol;
-    //   this.tercerosService.get('tipo_documento').subscribe(
-    //     response => {
-    //       this.tipoDocumento = response;
-    //       this.construirForm();
-    //     },
-    //     () => {
-    //       this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
-    //     },
-    //   );
-    //   this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-    //     this.construirForm();
-    //   });
-    // })
+    try {
+      this.tercerosService.get('tipo_documento').subscribe(
+        (response) => {
+          this.tipoDocumento = response;
+          this.construirForm();
+        },
+        (error) => {
+          console.error(error);
+          this.popUpManager.showErrorToast(
+            this.translate.instant('ERROR.general')
+          );
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
+    }
   }
-
-  ngOnInit() {}
 
   loadInfoSolicitante() {
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud');
     if (IdTercero !== undefined) {
-      this.sgaMidActualizacionDatosService
+      this.tercerosMidService
         .get('solicitudes-evaluacion/terceros/' + IdTercero)
         .subscribe((response: any) => {
           if (response.Status === 200) {
@@ -239,7 +121,7 @@ export class ActualizacionDatosComponent implements OnInit {
     this.loadInfoSolicitante();
     const IdSolicitud = sessionStorage.getItem('Solicitud');
     if (IdSolicitud !== undefined) {
-      this.sgaMidActualizacionDatosService
+      this.tercerosMidService
         .get('solicitudes-evaluacion/' + IdSolicitud)
         .subscribe(
           (response: any) => {
@@ -372,7 +254,7 @@ export class ActualizacionDatosComponent implements OnInit {
     }
     this.solicitudRespuesta.Aprobado =
       this.respuestaSolicitudForm.campos[1].valor;
-    this.sgaMidActualizacionDatosService
+    this.tercerosMidService
       .post('solicitudes-evaluacion', this.solicitudRespuesta)
       .subscribe(
         (response: any) => {
@@ -408,7 +290,7 @@ export class ActualizacionDatosComponent implements OnInit {
   loadInfoNueva() {
     const IdSolcitud = sessionStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
-    this.sgaMidActualizacionDatosService
+    this.tercerosMidService
       .get('solicitudes-evaluacion/' + IdSolcitud)
       .subscribe(
         (response: any) => {
@@ -564,17 +446,16 @@ export class ActualizacionDatosComponent implements OnInit {
     this.respuestaSolicitudForm.titulo = this.translate.instant(
       'solicitudes.solicitud_respuesta'
     );
-    this.solicitudForm.campos.forEach((campo) => {
+    this.solicitudForm.campos.forEach(async (campo) => {
       if (campo.etiqueta === 'button') {
         if (
-          this.rol.includes('ADMIN_SGA') ||
-          this.rol.includes('ASISTENTE_ADMISIONES')
+          await this.userService.esAutorizado(['ADMIN_SGA', 'ASISTENTE_ADMISIONES'])
         ) {
           campo.label = this.translate.instant(
             'solicitudes.' + campo.label_i18n
           );
         }
-        if (this.rol.includes('ESTUDIANTE')) {
+        if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
           campo.label_i18n = campo.label_i18n_estudiante;
         }
       }
@@ -656,7 +537,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 10
               );
               Solicitud.TipoSolicitud = 3;
-              this.sgaMidActualizacionDatosService
+              this.tercerosMidService
                 .post('solicitudes-evaluacion', Solicitud)
                 .subscribe(
                   (res: any) => {
@@ -715,15 +596,14 @@ export class ActualizacionDatosComponent implements OnInit {
     }
   }
 
-  habilitarRevision(event) {
+  async habilitarRevision(event) {
     if (event.button === 'ButonEditar') {
       if (
-        this.rol.includes('ADMIN_SGA') ||
-        this.rol.includes('ASISTENTE_ADMISIONES')
+        await this.userService.esAutorizado(['ADMIN_SGA', 'ASISTENTE_ADMISIONES'])
       ) {
         this.Admin = true;
       }
-      if (this.rol.includes('ESTUDIANTE')) {
+      if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
         this.solicitudForm.campos[
           this.getIndexForm('FechaExpedicionNuevo')
         ].deshabilitar = false;
@@ -743,6 +623,134 @@ export class ActualizacionDatosComponent implements OnInit {
         this.modificado = true;
         this.solicitudForm.btn = 'Enviar';
       }
+    }
+  }
+
+  private async procesarNuevaSolicitud() {
+    if (this.solicitudNueva) {
+      this.solicitudDatos = new ActualizacionDatos();
+      this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor =
+        '';
+      this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = '';
+      this.solicitudForm.campos[
+        this.getIndexForm('FechaExpedicionNuevo')
+      ].valor = '';
+      this.solicitudForm.campos[this.getIndexForm('Documento')].urlTemp = '';
+      this.solicitudForm.campos[this.getIndexForm('Documento')].valor = '';
+      this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
+        'noMostrar';
+      this.solicitudForm.btn = 'Enviar';
+      this.Admin = false;
+
+      if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
+        this.loadInfo();
+        this.solicitudForm.campos[
+          this.getIndexForm('FechaExpedicionNuevo')
+        ].deshabilitar = false;
+        this.solicitudForm.campos[
+          this.getIndexForm('TipoDocumentoNuevo')
+        ].deshabilitar = false;
+        this.solicitudForm.campos[
+          this.getIndexForm('NumeroNuevo')
+        ].deshabilitar = false;
+        this.solicitudForm.campos[this.getIndexForm('Documento')].deshabilitar =
+          false;
+        this.respuestaSolicitudForm.campos.forEach((campo) => {
+          campo.deshabilitar = true;
+        });
+        this.loading = false;
+      }
+    } else {
+      this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
+      if (
+        await this.userService.esAutorizado([
+          'ADMIN_SGA',
+          'ASISTENTE_ADMISIONES',
+        ])
+      ) {
+        this.Admin = false;
+      }
+      if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
+        this.Admin = false;
+        this.loadInfo();
+      }
+      this.loadInfoById();
+    }
+  }
+
+  private async procesarDataSolicitud(dataSolicitud: any) {
+    this.solicitudRespuesta = new RespuestaSolicitud();
+    this.solicitudRespuesta.Aprobado = false;
+    this.solicitudRespuesta.Observacion = '';
+    this.solicitudRespuesta.SolicitudId = 0;
+    this.respuestaSolicitudForm.campos[1].valor = false;
+    if (dataSolicitud !== undefined) {
+      this.solicitudRespuesta.Observacion = dataSolicitud.Observacion;
+      if (dataSolicitud.Estado === 'Acta aprobada') {
+        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
+          'noMostrar';
+        this.respuestaSolicitudForm.campos[1].valor = true;
+        this.respuestaSolicitudForm.btn = '';
+        this.Admin = true;
+        this.respuestaSolicitudForm.campos.forEach((campo) => {
+          campo.deshabilitar = true;
+        });
+      }
+      if (dataSolicitud.Estado === 'Rectificar') {
+        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
+          'noMostrar';
+        if (
+          await this.userService.esAutorizado([
+            'ADMIN_SGA',
+            'ASISTENTE_ADMISIONES',
+          ])
+        ) {
+          this.respuestaSolicitudForm.campos.forEach((campo) => {
+            campo.deshabilitar = false;
+          });
+          this.respuestaSolicitudForm.btn = 'Enviar';
+          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
+        }
+      }
+      if (dataSolicitud.Estado === 'Radicada') {
+        if (
+          await this.userService.esAutorizado([
+            'ADMIN_SGA',
+            'ASISTENTE_ADMISIONES',
+          ])
+        ) {
+          this.respuestaSolicitudForm.campos.forEach((campo) => {
+            campo.deshabilitar = false;
+          });
+          this.respuestaSolicitudForm.btn = 'Enviar';
+          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
+        }
+        if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
+          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
+            'noMostrar';
+        }
+      }
+      if (dataSolicitud.Estado === 'Rechazada') {
+        this.respuestaSolicitudForm.btn = '';
+        this.Admin = true;
+        this.respuestaSolicitudForm.campos.forEach((campo) => {
+          campo.deshabilitar = true;
+        });
+        if (
+          await this.userService.esAutorizado([
+            'ADMIN_SGA',
+            'ASISTENTE_ADMISIONES',
+          ])
+        ) {
+          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
+            'noMostrar';
+        }
+        if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
+          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
+        }
+      }
+    } else {
+      this.Admin = false;
     }
   }
 }
