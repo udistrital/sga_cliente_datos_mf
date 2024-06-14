@@ -870,13 +870,158 @@
                 <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
               </div>
 
+              <!-- input-file -->
+              <div
+                *ngSwitchCase="'file'"
+                class="input-file {{ c.clase }} {{
+                  c.ocultar ? 'no-mostrar' : ''
+                }}"
+              >
+                <div class="row">
+                  <div class="col-9">
+                    <label for="{{ c.nombre }}" class="upload-file">
+                      {{ c.requerido ? "* " + c.label : c.label }}
+                    </label>
+                    <input
+                      #documento
+                      [disabled]="c.deshabilitar"
+                      type="file"
+                      id="{{ c.nombre }}"
+                      (change)="onChange($event, c)"
+                    />
+                    <br />
+                    <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
+                  </div>
+                  <div class="col-3" *ngIf="c.urlTemp">
+                    <div
+                      class="ver-documento"
+                      (click)="download(c.urlTemp, c.nombre, 500, 500)"
+                    >
+                      <i
+                        class="fa fa-cloud-download fa-2x"
+                        aria-hidden="true"
+                      ></i>
+                      <span>{{ "GLOBAL.click_aqui" | translate }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- input-file with revision -->
+              <mat-form-field
+                *ngSwitchCase="'fileRev'"
+                style="width: 100%"
+                class="form-group"
+                floatLabel="always"
+                [hidden]="c.ocultar"
+              >
+                <input
+                  #documento
+                  type="file"
+                  (change)="onChange2($event, c)"
+                  style="display: none"
+                />
+                <mat-label>{{
+                  c.requerido ? "* " + c.label : c.label
+                }}</mat-label>
+                <div class="row">
+                  <div class="col-9">
+                    <button
+                      type="button"
+                      mat-raised-button
+                      (click)="documento.click()"
+                      [disabled]="
+                        (c.estadoDoc ? c.estadoDoc.aprobado : false) ||
+                        (c.deshabilitar ? c.deshabilitar : false)
+                      "
+                    >
+                      {{ "GLOBAL.seleccionar_archivo" | translate }}
+                    </button>
+                    <span
+                      *ngIf="c.File"
+                      class="enlace-documento"
+                      (click)="
+                        download(
+                          c.urlTemp,
+                          c.File.name,
+                          500,
+                          500,
+                          c.previewForm,
+                          c.messagepreview
+                        )
+                      "
+                      title="{{
+                        'GLOBAL.tooltip_previsualizar_archivo' | translate
+                      }}"
+                    >
+                      {{ c.File?.name }}
+                    </span>
+                  </div>
+                  <div class="col-3">
+                    <span
+                      *ngIf="c.valor && !c.File"
+                      class="enlace-documento alinear"
+                      (click)="
+                        download(
+                          c.valor,
+                          c.nombre,
+                          500,
+                          500,
+                          c.previewForm,
+                          c.messagepreview
+                        )
+                      "
+                      title="{{
+                        'GLOBAL.tooltip_descargar_arhivo' | translate
+                      }}"
+                    >
+                      <i
+                        class="fa fa-cloud-download fa-2x"
+                        aria-hidden="true"
+                      ></i>
+                      <i>{{ "GLOBAL.tooltip_descargar" | translate }}</i>
+                    </span>
+                  </div>
+                </div>
+                <mat-hint style="width: 100%">
+                  <div class="row text-danger">
+                    <div class="col-12">{{ c.alerta }}</div>
+                  </div>
+                  <div
+                    *ngIf="c.estadoDoc && !c.File"
+                    class="row"
+                    style="font-size: 13px"
+                  >
+                    <div
+                      class="col-4"
+                      [ngClass]="{
+                        'text-danger': c.estadoDoc.aprobado == false
+                      }"
+                    >
+                      {{ "GLOBAL.estado" | translate }}:
+                      {{ c.estadoDoc.estadoObservacion }}
+                    </div>
+                    <div class="col-8">
+                      {{ "GLOBAL.observacion" | translate }}:
+                      {{ c.estadoDoc.observacion }}
+                    </div>
+                  </div>
+                </mat-hint>
+                <input matInput style="display: none" />
+              </mat-form-field>
+
               <!--buttton -->
               <div
                 *ngSwitchCase="'button'"
                 class="row {{ c.ocultar ? 'no-mostrar' : '' }}"
               >
                 <div class="{{ c.claseGrid }}">
-                  <button mat-flat-button color="accent" id="{{ c.id }}" (click)="auxButton(c)">
+                  <button
+                    mat-flat-button
+                    color="accent"
+                    id="{{ c.id }}"
+                    (click)="auxButton(c)"
+                  >
                     <i class="{{ c.icono }}"></i>
                     {{ c.label }}
                   </button>
@@ -894,7 +1039,7 @@
         </div>
         <ng-content></ng-content>
         <div
-          style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;"
+          style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem"
           *ngIf="normalform.btnLimpiar || normalform.btn"
         >
           <button
