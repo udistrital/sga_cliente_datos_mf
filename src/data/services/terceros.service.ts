@@ -4,30 +4,30 @@ import { RequestManager } from 'src/app/managers/request_manager';
 @Injectable({
   providedIn: 'root',
 })
+export class TercerosService {
+  constructor(private requestManager: RequestManager) {}
 
-export class SgaMidTercerosService {
-
-  constructor(private requestManager: RequestManager) {
+  private setPath() {
     this.requestManager.setPath('TERCEROS_SERVICE');
   }
 
   get(endpoint) {
-    this.requestManager.setPath('TERCEROS_SERVICE');
+    this.setPath();
     return this.requestManager.get(endpoint);
   }
 
   post(endpoint, element) {
-    this.requestManager.setPath('TERCEROS_SERVICE');
+    this.setPath();
     return this.requestManager.post(endpoint, element);
   }
 
   put(endpoint, element) {
-    this.requestManager.setPath('TERCEROS_SERVICE');
+    this.setPath();
     return this.requestManager.put(endpoint, element);
   }
 
   delete(endpoint, element) {
-    this.requestManager.setPath('TERCEROS_SERVICE');
+    this.setPath();
     return this.requestManager.delete(endpoint, element.Id);
   }
 }
