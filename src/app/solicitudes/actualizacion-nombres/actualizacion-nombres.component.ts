@@ -16,6 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import { TercerosMidService } from 'src/data/services/terceros_mid.service';
+import { TercerosService } from 'src/data/services/terceros.service';
 import { UserService } from 'src/data/services/user.service';
 
 @Component({
@@ -57,30 +58,29 @@ export class ActualizacionNombresComponent implements OnInit {
     private translate: TranslateService,
     private popUpManager: PopUpManager,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
-    private sgaMidTerceroService: TercerosMidService,
+    private tercerosMidService: TercerosMidService,
+    private tercerosService: TercerosService,
     private newNuxeoService: NewNuxeoService,
     private userService: UserService
   ) {
+    this.solicitudForm = ACTUALIZAR_NOMBRE;
+    this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.construirForm();
     });
   }
 
   async ngOnInit() {
-    this.solicitudForm = ACTUALIZAR_NOMBRE;
-    this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
-
-    this.construirForm();
+    await this.construirForm();
     this.loading = true;
     this.loadInfoSolicitante();
-    console.log("HOLA MUNDO")
   }
 
   loadInfoSolicitante() {
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud');
     if (IdTercero !== undefined) {
-      this.sgaMidTerceroService
+      this.tercerosMidService
         .get('personas/' + IdTercero + '/info-solicitante')
         .subscribe((response: any) => {
           if (response.Status === 200) {
@@ -203,6 +203,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarRespuesta(event) {
+    console.log("HOLA MUNDO", event)
     this.loading = true;
     this.solicitudRespuesta = new RespuestaSolicitud();
     this.solicitudRespuesta.SolicitudId = parseInt(
@@ -414,7 +415,7 @@ export class ActualizacionNombresComponent implements OnInit {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor =
         hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
-      this.sgaMidTerceroService.get('tercero/' + TerceroId).subscribe(
+      this.tercerosService.get('tercero/' + TerceroId).subscribe(
         (response: any) => {
           if (response !== undefined && response !== '') {
             this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor =
@@ -448,14 +449,14 @@ export class ActualizacionNombresComponent implements OnInit {
     return 0;
   }
 
-  construirForm() {
-    this.solicitudForm.titulo = this.translate.instant(
+  async construirForm() {
+    this.solicitudForm.titulo = await this.translate.instant(
       'solicitudes.solicitud_encabezado'
     );
-    this.respuestaSolicitudForm.titulo = this.translate.instant(
+    this.respuestaSolicitudForm.titulo = await this.translate.instant(
       'solicitudes.solicitud_respuesta'
     );
-    this.solicitudForm.campos.forEach(async (campo) => {
+    await this.solicitudForm.campos.forEach(async (campo) => {
       if (campo.etiqueta === 'button') {
         if (
           await this.userService.esAutorizado([
@@ -474,7 +475,7 @@ export class ActualizacionNombresComponent implements OnInit {
       }
       campo.label = this.translate.instant('solicitudes.' + campo.label_i18n);
     });
-    this.respuestaSolicitudForm.campos.forEach((campo) => {
+    await this.respuestaSolicitudForm.campos.forEach((campo) => {
       campo.label = this.translate.instant('solicitudes.' + campo.label_i18n);
     });
   }
@@ -630,6 +631,16 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   private async procesarNuevaSolicitud() {
+    if (!this.solicitudForm) {
+      console.error('solicitudForm is undefined');
+      return;
+    }
+
+    if (!this.solicitudForm.campos) {
+      console.error('solicitudForm.campos is undefined');
+      return;
+    }
+
     if (this.solicitudNueva) {
       this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = '';
       this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = '';
