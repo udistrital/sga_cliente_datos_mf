@@ -7,6 +7,7 @@ import * as momentTimezone from 'moment-timezone';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
+import { UserService } from 'src/data/services/user.service';
 // @ts-ignore
 import Swal from 'sweetalert2/dist/sweetalert2';
 
@@ -39,16 +40,41 @@ export class ViewSolicitudesComponent implements OnInit {
   showTable: boolean;
   showSolicitudID: boolean;
   showSolicitudNombre: boolean;
-  rol: any;
   nuevaSolicitud: boolean;
   listaDatos = [];
-  isStudent: boolean = false;
 
   constructor(
     private translate: TranslateService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
-    private popUpManager: PopUpManager
-  ) {
+    private popUpManager: PopUpManager,
+    private userService: UserService
+  ) {}
+
+  async cargarDatosPorRol() {
+    try {
+      if (
+        await this.userService.esAutorizado([
+          'ADMIN_SGA',
+          'ASISTENTE_ADMISIONES',
+        ])
+      ) {
+        this.loadList();
+      }
+      if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
+        this.loadSolicitud();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async ngOnInit() {
+    this.inicializarVariables();
+    this.cargarDatosPorRol();
+    this.cargarDatosTabla([]);
+  }
+
+  private inicializarVariables() {
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
@@ -58,30 +84,7 @@ export class ViewSolicitudesComponent implements OnInit {
     this.nombresColumnas['Estado'] = 'solicitudes.estado';
     this.nombresColumnas['Observacion'] = 'solicitudes.observacion';
     this.nombresColumnas['Acciones'] = 'GLOBAL.acciones';
-
-
-    //ARREGLAR
-    // this.autenticationService.getRole().then((rol) => {
-    //   this.rol = rol;
-    //   this.isStudent = this.rol.includes('ESTUDIANTE');
-    //   this.loadListByRol();
-    //   this.cargarDatosTabla([]);
-    // });
   }
-
-  loadListByRol() {
-    if (
-      this.rol.includes('ADMIN_SGA') ||
-      this.rol.includes('ASISTENTE_ADMISIONES')
-    ) {
-      this.loadList();
-    }
-    if (this.rol.includes('ESTUDIANTE')) {
-      this.loadSolicitud();
-    }
-  }
-
-  ngOnInit() {}
 
   onclick(data) {
     this.solicitudSeleccionada = data;
@@ -155,12 +158,13 @@ export class ViewSolicitudesComponent implements OnInit {
     });
   }
 
-  loadSolicitud() {
-    const IdTercero = decrypt(localStorage.getItem('persona_id'));
+  async loadSolicitud() {
+    const IdTercero = await this.userService.getPersonaId();
     this.sgaMidActualizacionDatosService
       .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
         (response: any) => {
+          console.log("response", response)
           if (response.Status === 200) {
             const data = <Array<any>>response.Data.Response;
             const dataInfo = <Array<any>>[];
@@ -203,16 +207,16 @@ export class ViewSolicitudesComponent implements OnInit {
     this.dataSource = new MatTableDataSource(datosCargados);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.dataSource.sort.direction = 'asc';
-    this.dataSource.sort.active = 'Fecha';
+    if(this.dataSource.sort != undefined){
+      this.dataSource.sort.direction = 'asc';
+      this.dataSource.sort.active = 'Fecha';
+    }
   }
 
   consultarSolicitudes() {
     this.showTable = false;
     this.cargarDatosTabla([]);
-    // ARREGLAR
-    // this.rol = this.rol ? this.rol : this.autenticationService.getRole();
-    this.loadListByRol();
+    this.cargarDatosPorRol();
   }
 
   activateTab() {
@@ -222,7 +226,7 @@ export class ViewSolicitudesComponent implements OnInit {
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
     this.nuevaSolicitud = false;
-    this.loadListByRol();
+    this.cargarDatosPorRol();
   }
 
   nuevoNombre() {
