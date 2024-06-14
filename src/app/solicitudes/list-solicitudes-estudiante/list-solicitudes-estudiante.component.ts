@@ -8,6 +8,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { ApiMidResponse } from 'src/app/models/api-mid-response.interface';
+import { UserService } from 'src/data/services/user.service';
 
 @Component({
   selector: 'list-solicitudes-estudiante',
@@ -28,21 +29,21 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     'Observacion',
     'Acciones',
   ];
-  nombresColumnas = [];
+  nombresColumnas: string[] = [];
 
   showTable: boolean;
   showSolicitudID: boolean;
   showSolicitudNombre: boolean;
-  rol: any;
   listaDatos = [];
 
   constructor(
     private translate: TranslateService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
-    private popUpManager: PopUpManager
+    private popUpManager: PopUpManager,
+    private userService: UserService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
@@ -53,19 +54,23 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     this.nombresColumnas['Observacion'] = 'solicitudes.observacion';
     this.nombresColumnas['Acciones'] = 'GLOBAL.acciones';
 
-    // ARREGLAR
-    // this.autenticationService.getRole().then((rol)=> {
-    //   this.rol = rol;
-    //   if (this.rol.includes('ADMIN_SGA') || this.rol.includes('ASISTENTE_ADMISIONES')) {
-    this.loadList();
-    //   } if (this.rol.includes('ESTUDIANTE')) {
-    //     this.loadSolicitud();
-    //   }
-    //   this.cargarDatosTabla([]);
-    // });
+
+    try {
+      const esAdmin = await this.userService.esAutorizado(['ADMIN_SGA', 'ASISTENTE_ADMISIONES']);
+      if(esAdmin){
+        this.cargarTodasSolicitudes();
+      }
+      const esEstudiante = await this.userService.esAutorizado(['ESTUDIANTE']);
+      if(esEstudiante){
+        this.cargarSolicitudPorIdTercero();
+      }
+    } catch (error) {
+      this.popUpManager.showErrorToast(this.translate.instant('ERROR.general') + error);
+    }
   }
 
   onclick(data) {
+    console.log("DATA -->", data)
     sessionStorage.setItem('TerceroSolitud', data.TerceroId);
     sessionStorage.setItem('Solicitud', data.Numero);
     if (data.Tipo === 'Actualización de identificación') {
@@ -79,22 +84,16 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     }
   }
 
-  async loadList() {
-    for (let i = 15; i < 21; i++) {
-      await this.loadSolicitudes(i);
-      if (i === 20) {
-        await this.loadSolicitudes(32);
-        await this.loadSolicitudes(33);
-      }
+  async cargarTodasSolicitudes() {
+    for (let i = 15; i <= 20; i++) {
+      await this.cargarSolicitudPorTipo(i);
     }
-    const listaFinal = [];
-    for (let i = 0; i < this.listaDatos.length; i++) {
-      listaFinal[i] = this.listaDatos[i][0];
-    }
+    await Promise.all([this.cargarSolicitudPorTipo(32), this.cargarSolicitudPorTipo(33)]);
+    const listaFinal = this.listaDatos.map((data) => data[0]);
     this.cargarDatosTabla(listaFinal);
   }
 
-  loadSolicitudes(IdEstadoTipoSolicitud: number) {
+  cargarSolicitudPorTipo(IdEstadoTipoSolicitud: number) {
     return new Promise((resolve, reject) => {
       this.sgaMidActualizacionDatosService
         .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
@@ -133,14 +132,14 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     });
   }
 
-  loadSolicitud() {
-    const IdTercero = decrypt(localStorage.getItem('persona_id'));
+  async cargarSolicitudPorIdTercero() {
+    const IdTercero = await this.userService.getPersonaId();
     this.sgaMidActualizacionDatosService
       .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
-            const data = <Array<any>>response.Data.Resultado;
+            const data = <Array<any>>response.Data.Response;
             const dataInfo = <Array<any>>[];
             data.forEach((element) => {
               element.Fecha = momentTimezone
