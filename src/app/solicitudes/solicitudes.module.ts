@@ -46,7 +46,8 @@ import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { DocumentoService } from 'src/data/services/documento.service';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
-import { SgaMidTercerosService } from 'src/data/services/terceros.service';
+import { TercerosService } from 'src/data/services/terceros.service';
+import { TercerosMidService } from 'src/data/services/terceros_mid.service';
 
 @NgModule({
     declarations: [
@@ -102,7 +103,8 @@ import { SgaMidTercerosService } from 'src/data/services/terceros.service';
     providers: [
       PopUpManager,
       SgaMidActualizacionDatosService,
-      SgaMidTercerosService,
+      TercerosService,
+      TercerosMidService,
       NewNuxeoService,
       DocumentoService,
       {
