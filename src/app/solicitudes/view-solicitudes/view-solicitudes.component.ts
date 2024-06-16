@@ -164,7 +164,6 @@ export class ViewSolicitudesComponent implements OnInit {
       .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
         (response: any) => {
-          console.log("response", response)
           if (response.Status === 200) {
             const data = <Array<any>>response.Data.Response;
             const dataInfo = <Array<any>>[];
