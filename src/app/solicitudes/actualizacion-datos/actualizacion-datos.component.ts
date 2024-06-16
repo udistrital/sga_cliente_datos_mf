@@ -24,14 +24,13 @@ import { UserService } from 'src/data/services/user.service';
 export class ActualizacionDatosComponent implements OnInit {
   @Input()
   set nuevaSolicitud(nuevaSolicitud: boolean) {
-    console.log('nuevaSolicitud', nuevaSolicitud);
     this.solicitudNueva = nuevaSolicitud;
     this.procesarNuevaSolicitud();
   }
 
   @Input()
   set dataSolicitud(dataSolicitud: any) {
-    console.log('dataSolicitud', dataSolicitud);
+    
     this.procesarDataSolicitud(dataSolicitud);
   }
 
@@ -489,7 +488,7 @@ export class ActualizacionDatosComponent implements OnInit {
           this.solicitudDatos = event.data.solicitudDatos;
           if (this.solicitudDatos['Documento'].file !== undefined) {
             files.push({
-              // nombre: await this.autenticationService.getMail(),
+              nombre: await this.userService.getEmail(),
               key: 'Documento',
               file: this.solicitudDatos['Documento'].file,
               IdDocumento: 25,
@@ -578,12 +577,12 @@ export class ActualizacionDatosComponent implements OnInit {
                   }
                 );
             },
-            (error: HttpErrorResponse) => {
+            (error) => {
               this.loading = false;
               Swal.fire({
                 icon: 'error',
                 title: error.status + '',
-                text: this.translate.instant('ERROR.' + error.status),
+                text: this.translate.instant('ERROR.' + error),
                 footer: this.translate.instant(
                   'informacion_academica.documento_informacion_academica_no_registrado'
                 ),
