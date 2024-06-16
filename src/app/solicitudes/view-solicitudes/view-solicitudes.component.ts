@@ -12,7 +12,6 @@ import { UserService } from 'src/data/services/user.service';
 import Swal from 'sweetalert2/dist/sweetalert2';
 
 @Component({
-  // tslint:disable-next-line: component-selector
   selector: 'view-solicitudes',
   templateUrl: './view-solicitudes.component.html',
   styleUrls: ['./view-solicitudes.component.scss'],
@@ -71,7 +70,6 @@ export class ViewSolicitudesComponent implements OnInit {
   async ngOnInit() {
     this.inicializarVariables();
     this.cargarDatosPorRol();
-    this.cargarDatosTabla([]);
   }
 
   private inicializarVariables() {
@@ -214,7 +212,6 @@ export class ViewSolicitudesComponent implements OnInit {
 
   consultarSolicitudes() {
     this.showTable = false;
-    this.cargarDatosTabla([]);
     this.cargarDatosPorRol();
   }
 
@@ -244,9 +241,9 @@ export class ViewSolicitudesComponent implements OnInit {
       'TerceroSolitud',
       decrypt(localStorage.getItem('persona_id'))
     );
+    this.showSolicitudNombre = false;
     this.showSolicitudID = true;
     this.showTable = false;
-    this.showSolicitudNombre = false;
     this.nuevaSolicitud = true;
   }
 }
