@@ -15,6 +15,7 @@ import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { TercerosService } from 'src/data/services/terceros.service';
 import { UserService } from 'src/data/services/user.service';
+import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 
 @Component({
   selector: 'ngx-actualizacion-datos',
@@ -30,7 +31,6 @@ export class ActualizacionDatosComponent implements OnInit {
 
   @Input()
   set dataSolicitud(dataSolicitud: any) {
-    
     this.procesarDataSolicitud(dataSolicitud);
   }
 
@@ -55,16 +55,17 @@ export class ActualizacionDatosComponent implements OnInit {
     private tercerosMidService: TercerosMidService,
     private newNuxeoService: NewNuxeoService,
     private popUpManager: PopUpManager,
-    private userService: UserService
+    private userService: UserService,
+    private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService
   ) {
+    this.solicitudForm = ACTUALIZAR_DATOS;
+    this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.construirForm();
     });
   }
 
   async ngOnInit() {
-    this.solicitudForm = ACTUALIZAR_DATOS;
-    this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
     this.loading = true;
     this.Admin = false;
     try {
@@ -90,7 +91,7 @@ export class ActualizacionDatosComponent implements OnInit {
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud');
     if (IdTercero !== undefined) {
-      this.tercerosMidService
+      this.sgaMidActualizacionDatosService
         .get('solicitudes-evaluacion/terceros/' + IdTercero)
         .subscribe((response: any) => {
           if (response.Status === 200) {
@@ -448,7 +449,10 @@ export class ActualizacionDatosComponent implements OnInit {
     this.solicitudForm.campos.forEach(async (campo) => {
       if (campo.etiqueta === 'button') {
         if (
-          await this.userService.esAutorizado(['ADMIN_SGA', 'ASISTENTE_ADMISIONES'])
+          await this.userService.esAutorizado([
+            'ADMIN_SGA',
+            'ASISTENTE_ADMISIONES',
+          ])
         ) {
           campo.label = this.translate.instant(
             'solicitudes.' + campo.label_i18n
@@ -598,7 +602,10 @@ export class ActualizacionDatosComponent implements OnInit {
   async habilitarRevision(event) {
     if (event.button === 'ButonEditar') {
       if (
-        await this.userService.esAutorizado(['ADMIN_SGA', 'ASISTENTE_ADMISIONES'])
+        await this.userService.esAutorizado([
+          'ADMIN_SGA',
+          'ASISTENTE_ADMISIONES',
+        ])
       ) {
         this.Admin = true;
       }
