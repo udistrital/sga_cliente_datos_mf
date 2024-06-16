@@ -70,7 +70,6 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   }
 
   onclick(data) {
-    console.log("DATA -->", data)
     sessionStorage.setItem('TerceroSolitud', data.TerceroId);
     sessionStorage.setItem('Solicitud', data.Numero);
     if (data.Tipo === 'Actualización de identificación') {
