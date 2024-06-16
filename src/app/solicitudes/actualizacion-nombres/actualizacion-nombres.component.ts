@@ -203,7 +203,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarRespuesta(event) {
-    console.log("HOLA MUNDO", event)
     this.loading = true;
     this.solicitudRespuesta = new RespuestaSolicitud();
     this.solicitudRespuesta.SolicitudId = parseInt(
@@ -501,7 +500,7 @@ export class ActualizacionNombresComponent implements OnInit {
           if (this.solicitudDatos['Documento'].file !== undefined) {
             files.push({
               IdDocumento: 25,
-              // nombre: this.autenticationService.getPayload().sub,
+              nombre: this.userService.getPayload().sub,
               file: this.solicitudDatos['Documento'].file,
             });
           }
