@@ -91,8 +91,8 @@ export class ActualizacionDatosComponent implements OnInit {
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud');
     if (IdTercero !== undefined) {
-      this.sgaMidActualizacionDatosService
-        .get('solicitudes-evaluacion/terceros/' + IdTercero)
+      this.tercerosMidService
+        .get('personas/' + IdTercero + '/info-solicitante')
         .subscribe((response: any) => {
           if (response.Status === 200) {
             this.solicitante = response.Data;
@@ -121,7 +121,7 @@ export class ActualizacionDatosComponent implements OnInit {
     this.loadInfoSolicitante();
     const IdSolicitud = sessionStorage.getItem('Solicitud');
     if (IdSolicitud !== undefined) {
-      this.tercerosMidService
+      this.sgaMidActualizacionDatosService
         .get('solicitudes-evaluacion/' + IdSolicitud)
         .subscribe(
           (response: any) => {
@@ -254,7 +254,7 @@ export class ActualizacionDatosComponent implements OnInit {
     }
     this.solicitudRespuesta.Aprobado =
       this.respuestaSolicitudForm.campos[1].valor;
-    this.tercerosMidService
+    this.sgaMidActualizacionDatosService
       .post('solicitudes-evaluacion', this.solicitudRespuesta)
       .subscribe(
         (response: any) => {
@@ -290,7 +290,7 @@ export class ActualizacionDatosComponent implements OnInit {
   loadInfoNueva() {
     const IdSolcitud = sessionStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
-    this.tercerosMidService
+    this.sgaMidActualizacionDatosService
       .get('solicitudes-evaluacion/' + IdSolcitud)
       .subscribe(
         (response: any) => {
@@ -540,7 +540,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 10
               );
               Solicitud.TipoSolicitud = 3;
-              this.tercerosMidService
+              this.sgaMidActualizacionDatosService
                 .post('solicitudes-evaluacion', Solicitud)
                 .subscribe(
                   (res: any) => {
