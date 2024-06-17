@@ -1,0 +1,22 @@
+<div class="container">
+    <div class="titlebar">
+        {{ title }}
+        <div class="buttons">
+          <div class="close">
+            <a class="closebutton" mat-dialog-close
+              ><span><strong>X</strong></span></a
+            >
+          </div>
+        </div>
+      </div>
+      <object
+        class="object-pdf"
+        [data]="ulrfileSafe"
+        type="application/pdf"
+        *ngIf="validsafe"
+      ></object>
+      <div class="nofile" *ngIf="!validsafe">
+        {{ "ERROR.error_previsualizar_doc" | translate }}
+      </div>
+      
+</div>
