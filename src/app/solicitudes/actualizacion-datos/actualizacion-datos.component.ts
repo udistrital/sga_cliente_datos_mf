@@ -122,7 +122,7 @@ export class ActualizacionDatosComponent implements OnInit {
     const IdSolicitud = sessionStorage.getItem('Solicitud');
     if (IdSolicitud !== undefined) {
       this.sgaMidActualizacionDatosService
-        .get('solicitudes-evaluacion/' + IdSolicitud)
+        .get('solicitudes/' + IdSolicitud)
         .subscribe(
           (response: any) => {
             if (response.Status === 200) {
@@ -130,13 +130,13 @@ export class ActualizacionDatosComponent implements OnInit {
               this.solicitudForm.campos[
                 this.getIndexForm('FechaSolicitud')
               ].valor = momentTimezone
-                .tz(response.Data.Resultado.FechaSolicitud, 'America/Bogota')
+                .tz(response.Data.FechaSolicitud, 'America/Bogota')
                 .format('DD/MM/YYYY');
               this.solicitudForm.campos[
                 this.getIndexForm('FechaExpedicionNuevo')
               ].valor = momentTimezone
                 .tz(
-                  response.Data.Resultado.FechaExpedicionNuevo,
+                  response.Data.FechaExpedicionNuevo,
                   'America/Bogota'
                 )
                 .format('YYYY-MM-DD');
@@ -145,13 +145,13 @@ export class ActualizacionDatosComponent implements OnInit {
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('TipoDocumentoActual')
-              ].valor = response.Data.Resultado.TipoDocumentoActual;
+              ].valor = response.Data.TipoDocumentoActual;
               this.solicitudForm.campos[
                 this.getIndexForm('TipoDocumentoActual')
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('NumeroActual')
-              ].valor = response.Data.Resultado.NumeroActual;
+              ].valor = response.Data.NumeroActual;
               this.solicitudForm.campos[
                 this.getIndexForm('NumeroActual')
               ].deshabilitar = true;
@@ -159,7 +159,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 this.getIndexForm('FechaExpedicionActual')
               ].valor = momentTimezone
                 .tz(
-                  response.Data.Resultado.FechaExpedicionActual,
+                  response.Data.FechaExpedicionActual,
                   'America/Bogota'
                 )
                 .format('DD/MM/YYYY');
@@ -168,17 +168,17 @@ export class ActualizacionDatosComponent implements OnInit {
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('TipoDocumentoNuevo')
-              ].valor = response.Data.Resultado.TipoDocumentoNuevo;
+              ].valor = response.Data.TipoDocumentoNuevo;
               this.solicitudForm.campos[
                 this.getIndexForm('TipoDocumentoNuevo')
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('NumeroNuevo')
-              ].valor = response.Data.Resultado.NumeroNuevo;
+              ].valor = response.Data.NumeroNuevo;
               this.solicitudForm.campos[
                 this.getIndexForm('NumeroNuevo')
               ].deshabilitar = true;
-              this.solicitudForm.Documento = response.Data.Resultado.Documento;
+              this.solicitudForm.Documento = response.Data.Documento;
               const files = [];
               if (this.solicitudForm.Documento + '' !== '0') {
                 files.push({
@@ -191,6 +191,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 this.solicitudForm.Documento !== null &&
                 this.solicitudForm.Documento !== 0
               ) {
+                console.log("DOCUEMNTO -->", files )
                 this.newNuxeoService.get(files).subscribe(
                   (document: any) => {
                     this.SoporteDocumento = this.solicitudForm.Documento;
@@ -255,7 +256,7 @@ export class ActualizacionDatosComponent implements OnInit {
     this.solicitudRespuesta.Aprobado =
       this.respuestaSolicitudForm.campos[1].valor;
     this.sgaMidActualizacionDatosService
-      .post('solicitudes-evaluacion', this.solicitudRespuesta)
+      .post('solicitudes', this.solicitudRespuesta)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
@@ -291,7 +292,7 @@ export class ActualizacionDatosComponent implements OnInit {
     const IdSolcitud = sessionStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
     this.sgaMidActualizacionDatosService
-      .get('solicitudes-evaluacion/' + IdSolcitud)
+      .get('solicitudes/' + IdSolcitud)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
@@ -541,7 +542,7 @@ export class ActualizacionDatosComponent implements OnInit {
               );
               Solicitud.TipoSolicitud = 3;
               this.sgaMidActualizacionDatosService
-                .post('solicitudes-evaluacion', Solicitud)
+                .post('solicitudes', Solicitud)
                 .subscribe(
                   (res: any) => {
                     if (res.Status === 200) {

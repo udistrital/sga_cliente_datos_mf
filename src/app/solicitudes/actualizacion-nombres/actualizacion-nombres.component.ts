@@ -111,45 +111,46 @@ export class ActualizacionNombresComponent implements OnInit {
     const IdSolicitud = sessionStorage.getItem('Solicitud');
     if (IdSolicitud !== undefined) {
       this.sgaMidActualizacionDatosService
-        .get('solicitudes-evaluacion/' + IdSolicitud)
+        .get('solicitudes/' + IdSolicitud)
         .subscribe(
           (response: any) => {
-            if (response.Status === 200) {
+            if (response.Status === 200 && response.Data !== null) {
+              
               this.solicitudForm.btn = '';
               const date = moment(
-                response.Data.Resultado.FechaExpedicionNuevo,
+                response.Data.FechaExpedicionNuevo,
                 'DD/MM/YYYY'
               ).toDate();
               this.solicitudForm.campos[
                 this.getIndexForm('FechaSolicitud')
               ].valor = momentTimezone
-                .tz(response.Data.Resultado.FechaSolicitud, 'America/Bogota')
+                .tz(response.Data.FechaSolicitud, 'America/Bogota')
                 .format('DD/MM/YYYY');
               this.solicitudForm.campos[
                 this.getIndexForm('NombreActual')
-              ].valor = response.Data.Resultado.NombreActual;
+              ].valor = response.Data.NombreActual;
               this.solicitudForm.campos[
                 this.getIndexForm('NombreActual')
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('ApellidoActual')
-              ].valor = response.Data.Resultado.ApellidoActual;
+              ].valor = response.Data.ApellidoActual;
               this.solicitudForm.campos[
                 this.getIndexForm('ApellidoActual')
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('NombreNuevo')
-              ].valor = response.Data.Resultado.NombreNuevo;
+              ].valor = response.Data.NombreNuevo;
               this.solicitudForm.campos[
                 this.getIndexForm('NombreNuevo')
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('ApellidoNuevo')
-              ].valor = response.Data.Resultado.ApellidoNuevo;
+              ].valor = response.Data.ApellidoNuevo;
               this.solicitudForm.campos[
                 this.getIndexForm('ApellidoNuevo')
               ].deshabilitar = true;
-              this.solicitudForm.Documento = response.Data.Resultado.Documento;
+              this.solicitudForm.Documento = response.Data.Documento;
               const files = [];
               if (this.solicitudForm.Documento + '' !== '0') {
                 files.push({ Id: this.solicitudForm.Documento });
@@ -159,6 +160,7 @@ export class ActualizacionNombresComponent implements OnInit {
                 this.solicitudForm.Documento !== null &&
                 this.solicitudForm.Documento !== 0
               ) {
+                console.log("DOCUEMNTO -->", files )
                 this.newNuxeoService.get(files).subscribe(
                   (res) => {
                     const filesResponse = <any>res;
@@ -224,7 +226,7 @@ export class ActualizacionNombresComponent implements OnInit {
     this.solicitudRespuesta.Aprobado =
       this.respuestaSolicitudForm.campos[1].valor;
     this.sgaMidActualizacionDatosService
-      .post('solicitudes-evaluacion', this.solicitudRespuesta)
+      .post('solicitudes', this.solicitudRespuesta)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
@@ -260,7 +262,7 @@ export class ActualizacionNombresComponent implements OnInit {
     const IdSolcitud = localStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
     this.sgaMidActualizacionDatosService
-      .get('solicitudes-evaluacion/' + IdSolcitud)
+      .get('solicitudes/' + IdSolcitud)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
@@ -311,7 +313,7 @@ export class ActualizacionNombresComponent implements OnInit {
             }
           } else if (response.Status === 404) {
             this.sgaMidActualizacionDatosService
-              .get('solicitudes-evaluacion/' + IdSolcitud + '/18')
+              .get('solicitudes/' + IdSolcitud + '/18')
               .subscribe(
                 (response: any) => {
                   if (response.Status === 200) {
@@ -533,7 +535,7 @@ export class ActualizacionNombresComponent implements OnInit {
                     sessionStorage.getItem('Solicitud');
                 }
                 this.sgaMidActualizacionDatosService
-                  .post('solicitudes-evaluacion', Solicitud)
+                  .post('solicitudes', Solicitud)
                   .subscribe(
                     (res: any) => {
                       if (res.Status === 200) {

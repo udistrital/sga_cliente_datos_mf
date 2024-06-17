@@ -119,7 +119,7 @@ export class ViewSolicitudesComponent implements OnInit {
   loadSolicitudes(IdEstadoTipoSolicitud: number) {
     return new Promise((resolve, reject) => {
       this.sgaMidActualizacionDatosService
-        .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
+        .get('solicitudes/estados/' + IdEstadoTipoSolicitud)
         .subscribe(
           (response: any) => {
             if (response.Status === 200) {
@@ -159,7 +159,7 @@ export class ViewSolicitudesComponent implements OnInit {
   async loadSolicitud() {
     const IdTercero = await this.userService.getPersonaId();
     this.sgaMidActualizacionDatosService
-      .get('solicitudes-evaluacion/terceros/' + IdTercero)
+      .get('solicitudes/estudiantes/' + IdTercero)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
