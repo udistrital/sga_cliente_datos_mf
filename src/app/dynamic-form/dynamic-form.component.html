@@ -878,7 +878,8 @@
                 }}"
               >
                 <div class="row">
-                  <div class="col-9">
+                  <!-- Contenedor cuando NO hay un archivo cargado -->
+                  <div *ngIf="!c.urlTemp" class="col-12">
                     <label for="{{ c.nombre }}" class="upload-file">
                       {{ c.requerido ? "* " + c.label : c.label }}
                     </label>
@@ -889,19 +890,35 @@
                       id="{{ c.nombre }}"
                       (change)="onChange($event, c)"
                     />
-                    <br />
                     <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
                   </div>
-                  <div class="col-3" *ngIf="c.urlTemp">
-                    <div
-                      class="ver-documento"
-                      (click)="download(c.urlTemp, c.nombre, 500, 500)"
-                    >
-                      <i
-                        class="fa fa-cloud-download fa-2x"
-                        aria-hidden="true"
-                      ></i>
-                      <span>{{ "GLOBAL.click_aqui" | translate }}</span>
+
+                  <!-- Contenedor cuando hay un archivo cargado -->
+                  <div *ngIf="c.urlTemp">
+                    <div style="display: flex; justify-content: space-between">
+                      <div style="flex: 1; display: flex; align-items: center;" >
+                        <div
+                          class="ver-documento"
+                          (click)="download(c.urlTemp, c.nombre)"
+                          style="
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                          "
+                        >
+                          <mat-icon>download</mat-icon>
+                          <span>{{c.nombre}}</span>
+                        </div>
+                      </div>
+                      <div id="document-close">
+                        <button
+                          mat-icon-button
+                          color="warn"
+                          (click)="removeFile(c)"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
