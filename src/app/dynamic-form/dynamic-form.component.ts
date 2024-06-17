@@ -674,7 +674,6 @@ export class DynamicFormComponent implements OnInit, OnChanges {
   }
 
   removeFile(c: any): void {
-    console.log('C', c);
     c.urlTemp = '';
     c.valor = '';
   }

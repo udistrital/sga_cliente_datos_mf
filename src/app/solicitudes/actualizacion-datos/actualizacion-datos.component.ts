@@ -191,7 +191,6 @@ export class ActualizacionDatosComponent implements OnInit {
                 this.solicitudForm.Documento !== null &&
                 this.solicitudForm.Documento !== 0
               ) {
-                console.log("DOCUEMNTO -->", files )
                 this.newNuxeoService.get(files).subscribe(
                   (document: any) => {
                     this.SoporteDocumento = this.solicitudForm.Documento;
