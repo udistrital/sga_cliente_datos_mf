@@ -225,7 +225,7 @@ export class NewNuxeoService {
         files.map((file, index) => {
             this.documentService.get('documento/' + file.Id)
             .subscribe((doc) => {
-                this.anyService.get(environment.NUXEO_SERVICE, '/document/' + doc.Enlace)
+                this.anyService.get(environment.NUXEO_SERVICE, 'document/' + doc.Enlace)
                 .subscribe(async (f: any) => {
                     const url = await this.getUrlFile(f.file, file.ContentType ? file.ContentType : f['file:content']['mime-type'])
                     documentos[index] = { ...documentos[index], ...{ url: url }, ...{ Documento: this.sanitization.bypassSecurityTrustUrl(url) },
