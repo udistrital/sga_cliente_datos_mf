@@ -49,27 +49,24 @@ export class ViewSolicitudesComponent implements OnInit {
     private userService: UserService
   ) {}
 
-  async cargarDatosPorRol() {
+  async ngOnInit() {
+    this.inicializarVariables();
+    this.cargarDatos();
+  }
+
+  async cargarDatos() {
     try {
-      if (
-        await this.userService.esAutorizado([
-          'ADMIN_SGA',
-          'ASISTENTE_ADMISIONES',
-        ])
-      ) {
-        this.loadList();
-      }
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
         this.loadSolicitud();
+      } else {
+        this.popUpManager.showAlert(
+          '',
+          "No tienes permisos para ver esta información",
+      );
       }
     } catch (error) {
       console.error(error);
     }
-  }
-
-  async ngOnInit() {
-    this.inicializarVariables();
-    this.cargarDatosPorRol();
   }
 
   private inicializarVariables() {
@@ -85,6 +82,7 @@ export class ViewSolicitudesComponent implements OnInit {
   }
 
   onclick(data) {
+    console.log("data -->",data)
     this.solicitudSeleccionada = data;
     sessionStorage.setItem('Solicitud', data.Numero);
     sessionStorage.setItem('TerceroSolitud', data.TerceroId);
@@ -204,15 +202,50 @@ export class ViewSolicitudesComponent implements OnInit {
     this.dataSource = new MatTableDataSource(datosCargados);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    if(this.dataSource.sort != undefined){
-      this.dataSource.sort.direction = 'asc';
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'Fecha':
+          // Convert date string to Date object
+          return new Date(momentTimezone(item.Fecha, 'DD/MM/YYYY').toISOString());
+        case 'Numero':
+          return Number(item.Numero); // Ensure Numero is treated as a number
+        default:
+          return item[property];
+      }
+    };
+    this.dataSource.sortData = (data, sort) => {
+      const active = sort.active;
+      const direction = sort.direction;
+      if (!active || direction === '') {
+        return data;
+      }
+      return data.sort((a, b) => {
+        const aDate = new Date(momentTimezone(a.Fecha, 'DD/MM/YYYY').toISOString());
+        const bDate = new Date(momentTimezone(b.Fecha, 'DD/MM/YYYY').toISOString());
+        const aNumero = Number(a.Numero);
+        const bNumero = Number(b.Numero);
+        
+        // First sort by Fecha
+        const dateComparison = bDate.getTime() - aDate.getTime();
+        
+        // If dates are equal, sort by Numero
+        if (dateComparison === 0) {
+          return bNumero - aNumero;
+        }
+        
+        return dateComparison;
+      });
+    };
+    if (this.dataSource.sort) {
       this.dataSource.sort.active = 'Fecha';
+      this.dataSource.sort.direction = 'desc';
+      this.dataSource.sort.sortChange.emit(); // Emit sort change event to trigger sorting
     }
   }
 
   consultarSolicitudes() {
     this.showTable = false;
-    this.cargarDatosPorRol();
+    this.cargarDatos();
   }
 
   activateTab() {
@@ -222,7 +255,7 @@ export class ViewSolicitudesComponent implements OnInit {
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
     this.nuevaSolicitud = false;
-    this.cargarDatosPorRol();
+    this.cargarDatos();
   }
 
   nuevoNombre() {
