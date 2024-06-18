@@ -70,7 +70,7 @@
   </mat-card-content>
 
   <mat-card-content *ngIf="showSolicitudNombre">
-    <actualizacion-nombres></actualizacion-nombres>
+    <actualizacion-nombres [dataSolicitud]="solicitudSeleccionada"></actualizacion-nombres>
     <button
       (click)="activateTab()"
       mat-flat-button
