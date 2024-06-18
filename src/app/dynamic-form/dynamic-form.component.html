@@ -896,7 +896,7 @@
                   <!-- Contenedor cuando hay un archivo cargado -->
                   <div *ngIf="c.urlTemp">
                     <div style="display: flex; justify-content: space-between">
-                      <div style="flex: 1; display: flex; align-items: center;" >
+                      <div style="flex: 1; display: flex; align-items: center">
                         <div
                           class="ver-documento"
                           (click)="download(c.urlTemp, c.nombre)"
@@ -907,11 +907,12 @@
                           "
                         >
                           <mat-icon>download</mat-icon>
-                          <span>{{c.nombre}}</span>
+                          <span>{{ c.label }}</span>
                         </div>
                       </div>
                       <div id="document-close">
                         <button
+                          [disabled]="c.deshabilitar"
                           mat-icon-button
                           color="warn"
                           (click)="removeFile(c)"
@@ -1038,6 +1039,7 @@
                     color="accent"
                     id="{{ c.id }}"
                     (click)="auxButton(c)"
+                    [disabled]="c.deshabilitar"
                   >
                     <i class="{{ c.icono }}"></i>
                     {{ c.label }}
