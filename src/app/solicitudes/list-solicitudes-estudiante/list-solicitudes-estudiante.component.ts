@@ -6,8 +6,6 @@ import * as momentTimezone from 'moment-timezone';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { decrypt } from 'src/app/utils/util-encrypt';
-import { ApiMidResponse } from 'src/app/models/api-mid-response.interface';
 import { UserService } from 'src/data/services/user.service';
 
 @Component({
@@ -18,8 +16,8 @@ import { UserService } from 'src/data/services/user.service';
 export class ListSolicitudesEstudianteComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
 
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: false }) sort: MatSort;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   displayedColumns: string[] = [
     'Numero',
@@ -29,12 +27,13 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     'Observacion',
     'Acciones',
   ];
-  nombresColumnas: string[] = [];
+  nombresColumnas: { [key: string]: string } = {};
 
   showTable: boolean;
   showSolicitudID: boolean;
   showSolicitudNombre: boolean;
-  listaDatos = [];
+  solicitudSeleccionada: any;
+  listaDatos: any[] = [];
 
   constructor(
     private translate: TranslateService,
@@ -44,6 +43,32 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    this.inicializarVariables();
+    await this.cargarDatos();
+  }
+
+  private async cargarDatos() {
+    try {
+      const esAdmin = await this.userService.esAutorizado([
+        'ADMIN_SGA',
+        'ASISTENTE_ADMISIONES',
+      ]);
+      if (esAdmin) {
+        await this.cargarTodasSolicitudes();
+      } else {
+        this.popUpManager.showAlert(
+          '',
+          'No tienes permisos para ver esta información'
+        );
+      }
+    } catch (error) {
+      this.popUpManager.showErrorToast(
+        this.translate.instant('ERROR.general') + error
+      );
+    }
+  }
+
+  private inicializarVariables() {
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
@@ -53,25 +78,13 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     this.nombresColumnas['Estado'] = 'solicitudes.estado';
     this.nombresColumnas['Observacion'] = 'solicitudes.observacion';
     this.nombresColumnas['Acciones'] = 'GLOBAL.acciones';
-
-
-    try {
-      const esAdmin = await this.userService.esAutorizado(['ADMIN_SGA', 'ASISTENTE_ADMISIONES']);
-      if(esAdmin){
-        this.cargarTodasSolicitudes();
-      }
-      const esEstudiante = await this.userService.esAutorizado(['ESTUDIANTE']);
-      if(esEstudiante){
-        this.cargarSolicitudPorIdTercero();
-      }
-    } catch (error) {
-      this.popUpManager.showErrorToast(this.translate.instant('ERROR.general') + error);
-    }
   }
 
-  onclick(data) {
-    sessionStorage.setItem('TerceroSolitud', data.TerceroId);
+  onclick(data: any) {
+    console.log('data -->', data);
+    this.solicitudSeleccionada = data;
     sessionStorage.setItem('Solicitud', data.Numero);
+    sessionStorage.setItem('TerceroSolitud', data.TerceroId);
     if (data.Tipo === 'Actualización de identificación') {
       this.showSolicitudID = true;
       this.showTable = false;
@@ -84,41 +97,42 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   }
 
   async cargarTodasSolicitudes() {
-    for (let i = 15; i <= 20; i++) {
-      await this.cargarSolicitudPorTipo(i);
+    try {
+      await Promise.all([
+        this.cargarSolicitudPorTipo(15),
+        this.cargarSolicitudPorTipo(16),
+        this.cargarSolicitudPorTipo(17),
+        this.cargarSolicitudPorTipo(18),
+        this.cargarSolicitudPorTipo(19),
+        this.cargarSolicitudPorTipo(20),
+        this.cargarSolicitudPorTipo(32),
+        this.cargarSolicitudPorTipo(33),
+      ]);
+      const listaFinal = this.listaDatos.flat();
+      this.cargarDatosTabla(listaFinal);
+    } catch (error) {
+      this.popUpManager.showErrorToast(this.translate.instant('ERROR.general'));
     }
-    await Promise.all([this.cargarSolicitudPorTipo(32), this.cargarSolicitudPorTipo(33)]);
-    const listaFinal = this.listaDatos.map((data) => data[0]);
-    this.cargarDatosTabla(listaFinal);
   }
 
-  cargarSolicitudPorTipo(IdEstadoTipoSolicitud: number) {
+  cargarSolicitudPorTipo(IdEstadoTipoSolicitud: number): Promise<void> {
     return new Promise((resolve, reject) => {
       this.sgaMidActualizacionDatosService
-        .get('solicitudes/estados/' + IdEstadoTipoSolicitud)
+        .get(`solicitudes/estados/${IdEstadoTipoSolicitud}`)
         .subscribe(
-          (response: ApiMidResponse<any>) => {
+          (response: any) => {
             if (response.Status === 200 && response.Success === true) {
-              const data = <Array<any>>response.Data.Data;
-              const dataInfo = <Array<any>>[];
-              data.forEach((element) => {
+              const data = response.Data.Data;
+              const dataInfo = data.map((element: any) => {
                 element.Fecha = momentTimezone
                   .tz(element.Fecha, 'America/Bogota')
                   .format('DD/MM/YYYY');
-                dataInfo.push(element);
+                return element;
               });
-              if (dataInfo !== undefined) {
-                this.listaDatos.push(dataInfo);
-              }
-              resolve(dataInfo);
-            } else if (response.Status === 400) {
-              this.popUpManager.showInfoToast(
-                'info',
-                this.translate.instant('solicitudes.error')
-              );
-              resolve([]);
-            } else if (response.Status === 404) {
-              resolve([]);
+              this.listaDatos.push(dataInfo);
+              resolve();
+            } else {
+              resolve();
             }
           },
           (error) => {
@@ -132,39 +146,39 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
   }
 
   async cargarSolicitudPorIdTercero() {
-    const IdTercero = await this.userService.getPersonaId();
-    this.sgaMidActualizacionDatosService
-      .get('solicitudes/estudiantes/' + IdTercero)
-      .subscribe(
-        (response: any) => {
-          if (response.Status === 200) {
-            const data = <Array<any>>response.Data.Response;
-            const dataInfo = <Array<any>>[];
-            data.forEach((element) => {
-              element.Fecha = momentTimezone
-                .tz(element.Fecha, 'America/Bogota')
-                .format('DD/MM/YYYY');
-              dataInfo.push(element);
-            });
-            this.cargarDatosTabla(dataInfo);
-          } else if (response.Status === 404) {
-            this.popUpManager.showInfoToast(
-              'info',
-              this.translate.instant('solicitudes.no_data')
-            );
-          } else {
-            this.popUpManager.showInfoToast(
-              'info',
-              this.translate.instant('solicitudes.error')
+    try {
+      const IdTercero = await this.userService.getPersonaId();
+      this.sgaMidActualizacionDatosService
+        .get(`solicitudes/estudiantes/${IdTercero}`)
+        .subscribe(
+          (response: any) => {
+            if (response.Status === 200) {
+              const data = response.Data.Response;
+              const dataInfo = data.map((element: any) => {
+                element.Fecha = momentTimezone
+                  .tz(element.Fecha, 'America/Bogota')
+                  .format('DD/MM/YYYY');
+                return element;
+              });
+              this.cargarDatosTabla(dataInfo);
+            } else {
+              this.popUpManager.showInfoToast(
+                'info',
+                this.translate.instant('solicitudes.no_data')
+              );
+            }
+          },
+          () => {
+            this.popUpManager.showErrorToast(
+              this.translate.instant('ERROR.general')
             );
           }
-        },
-        () => {
-          this.popUpManager.showErrorToast(
-            this.translate.instant('ERROR.general')
-          );
-        }
+        );
+    } catch (error) {
+      this.popUpManager.showErrorToast(
+        this.translate.instant('ERROR.general') + error
       );
+    }
   }
 
   cargarDatosTabla(datosCargados: any[]): void {
