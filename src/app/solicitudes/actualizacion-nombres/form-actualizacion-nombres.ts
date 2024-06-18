@@ -13,10 +13,6 @@ export const ACTUALIZAR_NOMBRE = {
       deshabilitar: true,
       requerido: true,
     },
-    // {
-    //   etiqueta: 'div',
-    //   claseGrid: '',
-    // },
     {
       etiqueta: 'input',
       tipo: 'text',
@@ -47,7 +43,7 @@ export const ACTUALIZAR_NOMBRE = {
       etiqueta: 'input',
       tipo: 'text',
       nombre: 'ApellidoNuevo',
-      claseGrid: 'col-12 col-sm-6',
+      claseGrid: '',
       label_i18n: 'apellido_nuevo',
       requerido: true,
     },
@@ -67,7 +63,7 @@ export const ACTUALIZAR_NOMBRE = {
     },
     {
       etiqueta: 'button',
-      claseGrid: 'col-12 col-sm-6',
+      claseGrid: '',
       nombre: 'ButonEditar',
       id: 'noMostrar',
       tipo: 'mat-button',
