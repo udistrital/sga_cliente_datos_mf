@@ -31,6 +31,7 @@ export class ActualizacionNombresComponent implements OnInit {
     this.procesarNuevaSolicitud();
   }
 
+  @Input()
   set dataSolicitud(dataSolicitud: any) {
     this.solicitudRespuesta = new RespuestaSolicitud();
     this.solicitudRespuesta.Aprobado = false;
@@ -71,8 +72,8 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   async ngOnInit() {
-    await this.construirForm();
     this.loading = true;
+    await this.construirForm();
     this.loadInfoSolicitante();
   }
 
@@ -115,7 +116,6 @@ export class ActualizacionNombresComponent implements OnInit {
         .subscribe(
           (response: any) => {
             if (response.Status === 200 && response.Data !== null) {
-              
               this.solicitudForm.btn = '';
               const date = moment(
                 response.Data.FechaExpedicionNuevo,
@@ -150,6 +150,12 @@ export class ActualizacionNombresComponent implements OnInit {
               this.solicitudForm.campos[
                 this.getIndexForm('ApellidoNuevo')
               ].deshabilitar = true;
+              this.solicitudForm.campos[
+                this.getIndexForm('ButonEditar')
+              ].deshabilitar = false;
+              this.solicitudForm.campos[
+                this.getIndexForm('Documento')
+              ].deshabilitar = true;
               this.solicitudForm.Documento = response.Data.Documento;
               const files = [];
               if (this.solicitudForm.Documento + '' !== '0') {
@@ -160,17 +166,23 @@ export class ActualizacionNombresComponent implements OnInit {
                 this.solicitudForm.Documento !== null &&
                 this.solicitudForm.Documento !== 0
               ) {
-                this.newNuxeoService.get(files).subscribe(
+                this.newNuxeoService.getFiles(files).subscribe(
                   (res) => {
                     const filesResponse = <any>res;
+                    console.log('FILES RESPONSE', filesResponse);
+
                     if (Object.keys(filesResponse).length === files.length) {
                       this.SoporteDocumento = this.solicitudForm.Documento;
-                      this.solicitudForm.campos[
-                        this.getIndexForm('Documento')
-                      ].urlTemp = filesResponse[0].url;
-                      this.solicitudForm.campos[
-                        this.getIndexForm('Documento')
-                      ].valor = filesResponse[0].url;
+
+                      const documentoIndex = this.getIndexForm('Documento');
+                      if (documentoIndex !== -1) {
+                        this.solicitudForm.campos[documentoIndex].file =
+                          filesResponse[0].file;
+                        this.solicitudForm.campos[documentoIndex].urlTemp =
+                          filesResponse[0].url;
+                        this.solicitudForm.campos[documentoIndex].valor =
+                          filesResponse[0].url;
+                      }
                       this.loading = false;
                     }
                   },
@@ -204,6 +216,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarRespuesta(event) {
+    console.log('ENVIANDO FORMULARIO');
     this.loading = true;
     this.solicitudRespuesta = new RespuestaSolicitud();
     this.solicitudRespuesta.SolicitudId = parseInt(
@@ -481,6 +494,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarSolicitud(event) {
+    console.log('ENVIANDO SOLICITUD', event);
     if (event.valid) {
       const opt: any = {
         title: this.translate.instant('solicitudes.enviar'),
@@ -493,108 +507,122 @@ export class ActualizacionNombresComponent implements OnInit {
         cancelButtonText: this.translate.instant('GLOBAL.cancelar'),
       };
       Swal.fire(opt).then((willDelete) => {
+        console.log('WILL DELETE', willDelete);
         if (willDelete.value) {
+          console.log('WILL DELETE VALUE', willDelete.value);
           this.loading = true;
           const files = [];
           const Solicitud: any = {};
           this.solicitudDatos = event.data;
+
+          const documentoIndex = this.getIndexForm('Documento');
           if (this.solicitudDatos['Documento'].file !== undefined) {
+            console.log('FILE', this.solicitudDatos['Documento'].file);
             files.push({
               IdDocumento: 25,
               nombre: this.userService.getPayload().sub,
               file: this.solicitudDatos['Documento'].file,
             });
+          } else if (this.solicitudForm.campos[documentoIndex].file) {
+            console.log('SOLICITUD FORM', this.solicitudForm.campos);
+            files.push({
+              IdDocumento: 25,
+              nombre: this.userService.getPayload().sub,
+              file: this.solicitudForm.campos[documentoIndex].file,
+            });
           }
-          this.newNuxeoService.uploadFiles(files).subscribe(
-            (responseNux: any[]) => {
-              if (responseNux[0].Status == '200') {
-                this.solicitudDatos['Documento'] = responseNux[0].res.Id;
 
-                const hoy = new Date();
-                this.solicitudDatos.FechaSolicitud = momentTimezone
-                  .tz(
-                    hoy.getFullYear() +
-                      '/' +
-                      (hoy.getMonth() + 1) +
-                      '/' +
-                      hoy.getDate(),
-                    'America/Bogota'
-                  )
-                  .format('YYYY-MM-DD HH:mm:ss');
-                this.solicitudDatos.FechaSolicitud =
-                  this.solicitudDatos.FechaSolicitud + ' +0000 +0000';
-                Solicitud.Solicitud = this.solicitudDatos;
-                Solicitud.Solicitante = parseInt(
-                  decrypt(localStorage.getItem('persona_id')),
-                  10
-                );
-                Solicitud.TipoSolicitud = 4;
-                if (this.modificado) {
-                  Solicitud.SolicitudPadreId =
-                    sessionStorage.getItem('Solicitud');
+          console.log('FILES', files);
+
+          if (files.length > 0 && files[0].file instanceof Blob) {
+            this.newNuxeoService.uploadFiles(files).subscribe(
+              (responseNux: any[]) => {
+                console.log('RESPONSE NUX', responseNux);
+                if (responseNux[0].Status === '200') {
+                  this.solicitudDatos['Documento'] = responseNux[0].res.Id;
+                  this.finalizarSolicitud(Solicitud);
+                } else {
+                  this.loading = false;
                 }
-                this.sgaMidActualizacionDatosService
-                  .post('solicitudes', Solicitud)
-                  .subscribe(
-                    (res: any) => {
-                      if (res.Status === 200) {
-                        this.loading = false;
-                        Swal.fire({
-                          icon: 'success',
-                          title: this.translate.instant(
-                            'GLOBAL.operacion_exitosa'
-                          ),
-                          text: this.translate.instant(
-                            'solicitudes.crear_exito'
-                          ),
-                          confirmButtonText:
-                            this.translate.instant('GLOBAL.aceptar'),
-                        }).then((willDelete) => {
-                          if (willDelete.value) {
-                            this.solicitudEnviada.emit(true);
-                          }
-                        });
-                      } else {
-                        this.loading = false;
-                        this.popUpManager.showErrorToast(
-                          this.translate.instant('solicitudes.crear_error')
-                        );
-                      }
-                    },
-                    (error: HttpErrorResponse) => {
-                      this.loading = false;
-                      Swal.fire({
-                        icon: 'error',
-                        title: error.status + '',
-                        text: this.translate.instant('ERROR.' + error.status),
-                        footer: this.translate.instant(
-                          'informacion_academica.documento_informacion_academica_no_registrado'
-                        ),
-                        confirmButtonText:
-                          this.translate.instant('GLOBAL.aceptar'),
-                      });
-                    }
-                  );
-              } else {
+              },
+              (error: HttpErrorResponse) => {
                 this.loading = false;
+                Swal.fire({
+                  icon: 'error',
+                  title: error.status + '',
+                  text: this.translate.instant('ERROR.' + error.status),
+                  footer: this.translate.instant(
+                    'informacion_academica.documento_informacion_academica_no_registrado'
+                  ),
+                  confirmButtonText: this.translate.instant('GLOBAL.aceptar'),
+                });
               }
-            },
-            (error: HttpErrorResponse) => {
-              this.loading = false;
-              Swal.fire({
-                icon: 'error',
-                title: error.status + '',
-                text: this.translate.instant('ERROR.' + error.status),
-                footer: this.translate.instant(
-                  'informacion_academica.documento_informacion_academica_no_registrado'
-                ),
-                confirmButtonText: this.translate.instant('GLOBAL.aceptar'),
-              });
-            }
-          );
+            );
+          } else {
+            // No se sube el archivo, se mantiene el ID del documento original
+            this.solicitudDatos['Documento'] = this.solicitudForm.Documento;
+            this.finalizarSolicitud(Solicitud);
+          }
         }
       });
     }
+  }
+
+  finalizarSolicitud(Solicitud: any) {
+    const hoy = new Date();
+    this.solicitudDatos.FechaSolicitud = momentTimezone
+      .tz(
+        hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate(),
+        'America/Bogota'
+      )
+      .format('YYYY-MM-DD HH:mm:ss');
+    this.solicitudDatos.FechaSolicitud =
+      this.solicitudDatos.FechaSolicitud + ' +0000 +0000';
+    Solicitud.Solicitud = this.solicitudDatos;
+    Solicitud.Solicitante = parseInt(
+      decrypt(localStorage.getItem('persona_id')),
+      10
+    );
+    Solicitud.TipoSolicitud = 4;
+    if (this.modificado) {
+      Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud');
+    }
+    this.sgaMidActualizacionDatosService
+      .post('solicitudes', Solicitud)
+      .subscribe(
+        (res: any) => {
+          if (res.Status === 200) {
+            this.loading = false;
+            Swal.fire({
+              icon: 'success',
+              title: this.translate.instant('GLOBAL.operacion_exitosa'),
+              text: this.translate.instant('solicitudes.crear_exito'),
+              confirmButtonText: this.translate.instant('GLOBAL.aceptar'),
+            }).then((willDelete) => {
+              if (willDelete.value) {
+                this.solicitudEnviada.emit(true);
+              }
+            });
+          } else {
+            this.loading = false;
+            this.popUpManager.showErrorToast(
+              this.translate.instant('solicitudes.crear_error')
+            );
+          }
+        },
+        (error: HttpErrorResponse) => {
+          this.loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: error.status + '',
+            text: this.translate.instant('ERROR.' + error.status),
+            footer: this.translate.instant(
+              'informacion_academica.documento_informacion_academica_no_registrado'
+            ),
+            confirmButtonText: this.translate.instant('GLOBAL.aceptar'),
+          });
+        }
+      );
   }
 
   async habilitarRevision(event) {
@@ -608,6 +636,8 @@ export class ActualizacionNombresComponent implements OnInit {
         this.Admin = true;
       }
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
+        console.log(this.solicitudForm);
+        console.log(this.solicitudForm);
         this.solicitudForm.campos[
           this.getIndexForm('ApellidoNuevo')
         ].deshabilitar = false;
@@ -618,14 +648,13 @@ export class ActualizacionNombresComponent implements OnInit {
         ].deshabilitar = false;
         this.solicitudForm.campos[
           this.getIndexForm('ButonEditar')
-        ].deshabilitar = false;
+        ].deshabilitar = true;
         this.respuestaSolicitudForm.campos.forEach((campo) => {
           campo.deshabilitar = true;
         });
         this.respuestaSolicitudForm.btn = '';
-        this.Admin = true;
         this.modificado = true;
-        this.solicitudForm.btn = 'Enviar';
+        this.solicitudForm.btn = 'Actualizar';
       }
     }
   }
@@ -677,7 +706,7 @@ export class ActualizacionNombresComponent implements OnInit {
           'ASISTENTE_ADMISIONES',
         ])
       ) {
-        this.Admin = false;
+        this.Admin = true;
         this.loadInfoById();
       }
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
@@ -689,76 +718,50 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   private async procesarDataSolicitud(dataSolicitud: any) {
+    console.log(
+      'procesarDataSolicitud EJECUTANDOSE CON dataSolicitud',
+      dataSolicitud
+    );
+
     if (dataSolicitud !== undefined) {
       this.solicitudRespuesta.Observacion = dataSolicitud.Observacion;
-      if (dataSolicitud.Estado === 'Acta aprobada') {
-        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-          'noMostrar';
-        this.respuestaSolicitudForm.campos[1].valor = true;
+
+      if (dataSolicitud.Estado === 'Solicitud generada') {
+        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
+          false;
         this.respuestaSolicitudForm.btn = '';
-        this.Admin = true;
         this.respuestaSolicitudForm.campos.forEach((campo) => {
           campo.deshabilitar = true;
         });
       }
 
       if (dataSolicitud.Estado === 'Rectificar') {
-        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-          'noMostrar';
-        if (
-          await this.userService.esAutorizado([
-            'ADMIN_SGA',
-            'ASISTENTE_ADMISIONES',
-          ])
-        ) {
-          this.respuestaSolicitudForm.campos.forEach((campo) => {
-            campo.deshabilitar = false;
-          });
-          this.respuestaSolicitudForm.btn = 'Enviar';
-          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
-        }
+        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
+          false;
+
+        this.respuestaSolicitudForm.campos.forEach((campo) => {
+          campo.deshabilitar = false;
+        });
+        this.respuestaSolicitudForm.btn = 'Enviar';
       }
 
-      if (dataSolicitud.Estado === 'Radicada') {
-        if (
-          await this.userService.esAutorizado([
-            'ADMIN_SGA',
-            'ASISTENTE_ADMISIONES',
-          ])
-        ) {
-          this.respuestaSolicitudForm.campos.forEach((campo) => {
-            campo.deshabilitar = false;
-          });
-          this.respuestaSolicitudForm.btn = 'Enviar';
-          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
-        }
-        if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
-          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-            'noMostrar';
-        }
+      if (dataSolicitud.Estado === 'Acta aprobada') {
+        this.respuestaSolicitudForm.campos.forEach((campo) => {
+          campo.deshabilitar = false;
+        });
+        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
+          true;
       }
 
-      if (dataSolicitud.Estado === 'Rechazada') {
+      if (dataSolicitud.Estado === 'Solicitud rechazada') {
         this.respuestaSolicitudForm.btn = '';
         this.Admin = true;
         this.respuestaSolicitudForm.campos.forEach((campo) => {
           campo.deshabilitar = true;
         });
-        if (
-          await this.userService.esAutorizado([
-            'ADMIN_SGA',
-            'ASISTENTE_ADMISIONES',
-          ])
-        ) {
-          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-            'noMostrar';
-        }
-        if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
-          this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
-        }
+        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
+          true;
       }
-    } else {
-      this.Admin = false;
     }
   }
 }
