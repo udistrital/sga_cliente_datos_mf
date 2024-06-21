@@ -8,7 +8,10 @@
     "previa": "Anterior",
     "primera": "Primer página",
     "ultima": "Última página",
-    "ver_documento": "Ver documento"
+    "ver_documento": "Ver documento",
+    "operacion_exitosa": "Operación exitosa",
+    "aceptar": "Aceptar",
+    "cancelar": "Cancelar"
   },
   "MENU": {
     "gestionar_solicitudes": {
