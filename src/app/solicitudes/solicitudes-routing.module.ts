@@ -1,20 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SolicitudesComponent } from './solicitudes.component';
-import { ListSolicitudesEstudianteComponent } from './list-solicitudes-estudiante/list-solicitudes-estudiante.component';
-import { ActualizacionDatosComponent } from './actualizacion-datos/actualizacion-datos.component';
+import { PageAdministrativoComponent } from './page-administrativo/page-administrativo.component';
+import { ActualizacionDatosComponent } from './actualizacion-identificacion/actualizacion-datos.component';
 import { DatosSolicitanteComponent } from './datos-solicitante/datos-solicitante.component';
-import { ViewSolicitudesComponent } from './view-solicitudes/view-solicitudes.component';
+import { PageEstudiantesComponent } from './page-estudiantes/page-estudiantes.component';
 import { ActualizacionNombresComponent } from './actualizacion-nombres/actualizacion-nombres.component';
 
 const routes: Routes = [
   {
     path: 'datos-basicos',
-    component: ListSolicitudesEstudianteComponent,
+    component: PageAdministrativoComponent,
   },
   {
     path: 'actualizacion-datos',
-    component: ViewSolicitudesComponent,
+    component: PageEstudiantesComponent,
   },
 ];
 
@@ -26,9 +26,9 @@ export class SolicitudesRoutingComponent {}
 
 export const routedComponents = [
   SolicitudesComponent,
-  ListSolicitudesEstudianteComponent,
+  PageAdministrativoComponent,
   ActualizacionDatosComponent,
   DatosSolicitanteComponent,
-  ViewSolicitudesComponent,
+  PageEstudiantesComponent,
   ActualizacionNombresComponent,
 ];
