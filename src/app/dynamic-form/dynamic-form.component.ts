@@ -32,6 +32,7 @@ import { DialogPreviewFileComponent } from '../components/dialog-preview-file/di
   styleUrls: ['./dynamic-form.component.scss'],
 })
 export class DynamicFormComponent implements OnInit, OnChanges {
+  @Input('estadosMap') estadosMap: any;
   @Input('normalform') normalform: any;
   @Input('modeloData') modeloData: any;
   @Input('clean') clean!: boolean;
@@ -142,6 +143,14 @@ export class DynamicFormComponent implements OnInit, OnChanges {
               if (this.modeloData.hasOwnProperty(i)) {
                 if (i === element.nombre && this.modeloData[i] !== null) {
                   switch (element.etiqueta) {
+                    case 'checkboxcombo':
+                      const estado = this.modeloData.Estado;
+                      if (this.estadosMap && estado in this.estadosMap) {
+                        console.log("HOLAAAAAAAA CHECK COMBO")
+                        element.valor = this.estadosMap[estado];
+                      }
+                      break;
+
                     case 'selectmultiple':
                       element.valor = [];
                       if (this.modeloData[i].length > 0) {
@@ -357,6 +366,17 @@ export class DynamicFormComponent implements OnInit, OnChanges {
   }
 
   validCampo(c: any, emit = true): boolean {
+    if (c.etiqueta === 'checkboxcombo') {
+      if (c.requerido && (!c.valor || c.valor === '')) {
+        c.alerta = '** Debe llenar este campo';
+        c.clase = 'form-control form-control-danger';
+        return false;
+      } else {
+        c.clase = 'form-control form-control-success';
+        c.alerta = '';
+        return true;
+      }
+    }
     if (c.etiqueta === 'fileRev' && !c.ocultar) {
       if (
         c.requerido &&
@@ -676,5 +696,13 @@ export class DynamicFormComponent implements OnInit, OnChanges {
   removeFile(c: any): void {
     c.urlTemp = '';
     c.valor = '';
+  }
+
+  onCheckboxComboChange(c: any, selectedItem: any): void {
+    c.valor = c.valor === selectedItem ? null : selectedItem;
+  }
+
+  getKeys(obj: any): string[] {
+    return Object.keys(obj);
   }
 }

@@ -649,6 +649,27 @@
                 <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
               </div>
 
+              <!-- checkboxcombo -->
+              <div
+                *ngSwitchCase="'checkboxcombo'"
+                class="form-group validation-checkboxes mt-4"
+              >
+                <div
+                  *ngFor="let key of getKeys(c.opciones); let i = index"
+                  class="form-check"
+                >
+                  <mat-checkbox
+                    class="example-margin"
+                    [checked]="c.valor === key"
+                    (change)="onCheckboxComboChange(c, key)"
+                    [disabled]="c.deshabilitar"
+                  >
+                    {{ c.opciones[key] }}
+                  </mat-checkbox>
+                </div>
+                <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
+              </div>
+
               <!-- textarea -->
               <mat-form-field
                 *ngSwitchCase="'textarea'"
