@@ -5,6 +5,8 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
+
+    <!-- Datos del solicitante -->
     <ngx-datos-solicitante
       [solicitante]="solicitante"
       style="padding: 0px"
@@ -12,6 +14,7 @@
     >
     </ngx-datos-solicitante>
 
+    <!-- Formulario de solicitud -->
     <ngx-dinamicform
       [normalform]="solicitudForm"
       [modeloData]="solicitudDatos"
@@ -21,11 +24,13 @@
     >
     </ngx-dinamicform>
 
+    <!-- Formulario de respuesta -->
     <div>
       <ngx-dinamicform
         [normalform]="respuestaSolicitudForm"
         [modeloData]="solicitudRespuesta"
         (result)="enviarRespuesta($event)"
+        [estadosMap]="estadosMap"
         *ngIf="Admin"
       >
       </ngx-dinamicform>

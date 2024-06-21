@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { ACTUALIZAR_NOMBRE } from './form-actualizacion-nombres';
-import { RESPUESTA_SOLICITUD } from '../actualizacion-datos/form-respuesta-solicitud';
+import { ESTADOSMAP, RESPUESTA_SOLICITUD } from '../actualizacion-identificacion/form-respuesta-solicitud';
 import { HttpErrorResponse } from '@angular/common/http';
 // @ts-ignore
 import Swal from 'sweetalert2/dist/sweetalert2';
@@ -18,6 +18,8 @@ import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actua
 import { TercerosMidService } from 'src/data/services/terceros_mid.service';
 import { TercerosService } from 'src/data/services/terceros.service';
 import { UserService } from 'src/data/services/user.service';
+import { ApiMidResponse } from 'src/app/models/api-mid-response.interface';
+import { PutSolicitudNombre } from '../models/solicitud';
 
 @Component({
   selector: 'actualizacion-nombres',
@@ -27,18 +29,23 @@ import { UserService } from 'src/data/services/user.service';
 export class ActualizacionNombresComponent implements OnInit {
   @Input()
   set nuevaSolicitud(nuevaSolicitud: boolean) {
-    this.solicitudNueva = nuevaSolicitud;
-    this.procesarNuevaSolicitud();
+    if (nuevaSolicitud) {
+      console.log('nuevaSolicitud', nuevaSolicitud);
+      this.procesarDataSolicitud(undefined);
+      this.procesarNuevaSolicitud(nuevaSolicitud);
+      this.cargarDatosNuevaSolicitud();
+    }
   }
 
   @Input()
   set dataSolicitud(dataSolicitud: any) {
-    this.solicitudRespuesta = new RespuestaSolicitud();
-    this.solicitudRespuesta.Aprobado = false;
-    this.solicitudRespuesta.Observacion = '';
-    this.solicitudRespuesta.SolicitudId = 0;
-    this.respuestaSolicitudForm.campos[1].valor = false;
-    this.procesarDataSolicitud(dataSolicitud);
+    if (dataSolicitud) {
+      console.log('dataSolicitud', dataSolicitud);
+      this.solicitudOriginal = dataSolicitud;
+      this.inicializarRespuestaSolicitud();
+      this.procesarDataSolicitud(dataSolicitud);
+      this.getSolicitud();
+    }
   }
 
   @Output() solicitudEnviada: EventEmitter<boolean> = new EventEmitter();
@@ -54,6 +61,8 @@ export class ActualizacionNombresComponent implements OnInit {
   modificado: boolean = false;
   Admin: boolean = false;
   loading: boolean = false;
+  solicitudOriginal = null;
+  estadosMap=ESTADOSMAP; 
 
   constructor(
     private translate: TranslateService,
@@ -74,10 +83,11 @@ export class ActualizacionNombresComponent implements OnInit {
   async ngOnInit() {
     this.loading = true;
     await this.construirForm();
-    this.loadInfoSolicitante();
+    this.getSolicitante();
   }
 
-  loadInfoSolicitante() {
+  getSolicitante() {
+    console.log('getSolicitante');
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud');
     if (IdTercero !== undefined) {
@@ -107,8 +117,9 @@ export class ActualizacionNombresComponent implements OnInit {
     }
   }
 
-  loadInfoById() {
-    this.loadInfoSolicitante();
+  getSolicitud() {
+    console.log('getSolicitud');
+    this.getSolicitante();
     const IdSolicitud = sessionStorage.getItem('Solicitud');
     if (IdSolicitud !== undefined) {
       this.sgaMidActualizacionDatosService
@@ -216,7 +227,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarRespuesta(event) {
-    console.log('ENVIANDO FORMULARIO');
+    console.log('enviarRespuesta');
     this.loading = true;
     this.solicitudRespuesta = new RespuestaSolicitud();
     this.solicitudRespuesta.SolicitudId = parseInt(
@@ -227,23 +238,37 @@ export class ActualizacionNombresComponent implements OnInit {
       this.respuestaSolicitudForm.campos[
         this.getIndexForm('Observacion')
       ].valor;
-    this.solicitudRespuesta.Estado = 9;
-    if (
-      this.respuestaSolicitudForm.campos[1].valor === '' ||
-      this.respuestaSolicitudForm.campos[1].valor === false
-    ) {
-      this.respuestaSolicitudForm.campos[1].valor = false;
-      this.solicitudRespuesta.Estado = 11;
+
+    const estadoSolicitud: string | null = this.respuestaSolicitudForm.campos[1]
+      .valor
+      ? this.respuestaSolicitudForm.campos[1].valor
+      : null;
+
+    switch (estadoSolicitud) {
+      case RESPUESTA_SOLICITUD.campos[1].opciones.Aprobado:
+        this.solicitudRespuesta.Estado = 9;
+        this.solicitudRespuesta.Aprobado = true;
+        break;
+      case RESPUESTA_SOLICITUD.campos[1].opciones.Rechazado:
+        this.solicitudRespuesta.Estado = 11;
+        this.solicitudRespuesta.Aprobado = false;
+        break;
+      case RESPUESTA_SOLICITUD.campos[1].opciones.Rectificar:
+        this.solicitudRespuesta.Estado = 17;
+        this.solicitudRespuesta.Aprobado = false;
+        break;
+      default:
+        this.popUpManager.showInfoToast('No seleccionado el tipo de respuesta');
+        return;
     }
-    this.solicitudRespuesta.Aprobado =
-      this.respuestaSolicitudForm.campos[1].valor;
+
     this.sgaMidActualizacionDatosService
-      .post('solicitudes', this.solicitudRespuesta)
+      .post('solicitudes/evoluciones', this.solicitudRespuesta)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
             this.loading = false;
-            this.loadInfoById();
+            this.getSolicitud();
             Swal.fire({
               icon: 'success',
               title: this.translate.instant('GLOBAL.operacion_exitosa'),
@@ -254,6 +279,7 @@ export class ActualizacionNombresComponent implements OnInit {
                 this.solicitudEnviada.emit(true);
               }
             });
+            this.getSolicitud();
           } else if (response.Status === 400) {
             this.loading = false;
             this.popUpManager.showErrorToast(
@@ -271,6 +297,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   loadInfoNueva() {
+    console.log('loadInfoNueva');
     const IdSolcitud = localStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
     this.sgaMidActualizacionDatosService
@@ -421,22 +448,22 @@ export class ActualizacionNombresComponent implements OnInit {
       );
   }
 
-  loadInfo() {
-    this.loadInfoSolicitante();
-    const TerceroId = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
+  async cargarDatosNuevaSolicitud() {
+    console.log('cargarDatosNuevaSolicitud');
+    const TerceroId = await this.userService.getPersonaId();
     if (TerceroId !== undefined) {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor =
         hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
       this.tercerosService.get('tercero/' + TerceroId).subscribe(
-        (response: any) => {
-          if (response !== undefined && response !== '') {
+        (tercero: any) => {
+          if (tercero !== undefined && tercero !== '') {
             this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor =
-              response['PrimerNombre'] + ' ' + response['SegundoNombre'];
+              tercero['PrimerNombre'] + ' ' + tercero['SegundoNombre'];
             this.solicitudForm.campos[
               this.getIndexForm('ApellidoActual')
             ].valor =
-              response['PrimerApellido'] + ' ' + response['SegundoApellido'];
+              tercero['PrimerApellido'] + ' ' + tercero['SegundoApellido'];
           }
         },
         () => {
@@ -449,6 +476,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   cargoDatos(event) {
+    console.log('cargoDatos');
     this.loading = !event;
   }
 
@@ -463,6 +491,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   async construirForm() {
+    console.log('construirForm');
     this.solicitudForm.titulo = await this.translate.instant(
       'solicitudes.solicitud_encabezado'
     );
@@ -494,7 +523,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarSolicitud(event) {
-    console.log('ENVIANDO SOLICITUD', event);
+    console.log('enviarSolicitud', event);
     if (event.valid) {
       const opt: any = {
         title: this.translate.instant('solicitudes.enviar'),
@@ -507,7 +536,6 @@ export class ActualizacionNombresComponent implements OnInit {
         cancelButtonText: this.translate.instant('GLOBAL.cancelar'),
       };
       Swal.fire(opt).then((willDelete) => {
-        console.log('WILL DELETE', willDelete);
         if (willDelete.value) {
           console.log('WILL DELETE VALUE', willDelete.value);
           this.loading = true;
@@ -569,6 +597,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   finalizarSolicitud(Solicitud: any) {
+    console.log('finalizarSolicitud');
     const hoy = new Date();
     this.solicitudDatos.FechaSolicitud = momentTimezone
       .tz(
@@ -576,6 +605,7 @@ export class ActualizacionNombresComponent implements OnInit {
         'America/Bogota'
       )
       .format('YYYY-MM-DD HH:mm:ss');
+    console.log('FECHA DE SOLICITUD -->', this.solicitudDatos.FechaSolicitud);
     this.solicitudDatos.FechaSolicitud =
       this.solicitudDatos.FechaSolicitud + ' +0000 +0000';
     Solicitud.Solicitud = this.solicitudDatos;
@@ -584,11 +614,101 @@ export class ActualizacionNombresComponent implements OnInit {
       10
     );
     Solicitud.TipoSolicitud = 4;
+
     if (this.modificado) {
       Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud');
     }
+
+    // Si la solicitud original es diferente de null y el estado de la solicitud original es diferente de null y la solicitud es diferente de null
+    // significa que existe una solicitud, y se esta modificando
+    // pero si no existe una solicitud original, se esta creando una nueva solicitud
+    if (
+      this.solicitudOriginal !== null &&
+      this.solicitudOriginal.Estado !== null &&
+      Solicitud
+    ) {
+      this.modificarSolicitud(Solicitud, this.solicitudOriginal.Estado);
+    } else if (!this.solicitudOriginal) {
+      this.crearNuevaSolicitud(Solicitud);
+    }
+  }
+
+  private modificarSolicitud(solicitud, estado) {
+    switch (estado) {
+      case 'Solicitud generada':
+        // Si el estado es solicitud generada, se modificar la solicitud original
+        console.log(`MODIFCANDO SOLICITUD ORIGINAL...`, solicitud);
+        this.putSolicitud(solicitud);
+        break;
+      case 'Rectificar':
+        // Si el estado es rectificar, se debe guardar la solicitud con el estado de rectificar y crear una nueva solicitud con el estado de solicitud generada anclado a la solicitud original
+        this.crearNuevaSolicitud(solicitud);
+        break;
+      default:
+        this.popUpManager.showAlert(
+          '',
+          'Solicitud cerrada, no se puede realizar cambios'
+        );
+    }
+  }
+
+  private putSolicitud(solicitud: any) {
+    // Creando estructura de datos que recibe el /solicitud [put]
+    const putSolicitud: PutSolicitudNombre = {
+      DatosAnteriores: {
+        ApellidoActual: solicitud.Solicitud.ApellidoActual,
+        NombreActual: solicitud.Solicitud.NombreActual,
+      },
+      DatosNuevos: {
+        ApellidoNuevo: solicitud.Solicitud.ApellidoNuevo,
+        NombreNuevo: solicitud.Solicitud.NombreNuevo,
+      },
+      DocumentoId: solicitud.Solicitud.Documento,
+    };
+
+    if (solicitud.SolicitudPadreId && solicitud.Solicitud) {
+      this.sgaMidActualizacionDatosService
+        .put(`solicitudes/${solicitud.SolicitudPadreId}`, putSolicitud)
+        .subscribe(
+          async (res: ApiMidResponse<any>) => {
+            if (res.Status === 200) {
+              if (res.Success) {
+                try {
+                  const confirm = await this.popUpManager.showConfirmAlert(
+                    'Operación exitosa',
+                    'Solicitud actualizada correctamente'
+                  );
+                  this.getSolicitud();
+                } catch (error) {
+                  console.error(error);
+                }
+              } else {
+                try {
+                  this.popUpManager.showErrorAlert(res.Message);
+                } catch (error) {
+                  console.error(error);
+                }
+              }
+            } else {
+              try {
+                this.popUpManager.showErrorToast(
+                  'Error al actualizar la solicitud'
+                );
+              } catch (error) {
+                console.error(error);
+              }
+            }
+          },
+          (error) => {
+            console.error(error);
+          }
+        );
+    }
+  }
+
+  private crearNuevaSolicitud(solicitud: any) {
     this.sgaMidActualizacionDatosService
-      .post('solicitudes', Solicitud)
+      .post('solicitudes', solicitud)
       .subscribe(
         (res: any) => {
           if (res.Status === 200) {
@@ -626,6 +746,7 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   async habilitarRevision(event) {
+    console.log('habilitarRevision');
     if (event.button === 'ButonEditar') {
       if (
         await this.userService.esAutorizado([
@@ -636,8 +757,6 @@ export class ActualizacionNombresComponent implements OnInit {
         this.Admin = true;
       }
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
-        console.log(this.solicitudForm);
-        console.log(this.solicitudForm);
         this.solicitudForm.campos[
           this.getIndexForm('ApellidoNuevo')
         ].deshabilitar = false;
@@ -659,7 +778,8 @@ export class ActualizacionNombresComponent implements OnInit {
     }
   }
 
-  private async procesarNuevaSolicitud() {
+  private async procesarNuevaSolicitud(nuevaSolicitud: boolean) {
+    console.log('procesarNuevaSolicitud');
     if (!this.solicitudForm) {
       console.error('solicitudForm is undefined');
       return;
@@ -670,18 +790,19 @@ export class ActualizacionNombresComponent implements OnInit {
       return;
     }
 
-    if (this.solicitudNueva) {
+    if (nuevaSolicitud) {
       this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = '';
       this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = '';
       this.solicitudForm.campos[this.getIndexForm('Documento')].urlTemp = '';
       this.solicitudForm.campos[this.getIndexForm('Documento')].valor = '';
-      this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id =
-        'noMostrar';
+      this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
+        true;
       this.solicitudForm.btn = 'Enviar';
       this.Admin = false;
 
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
-        this.loadInfo();
+        console.log('HABILITANDO CAMPOS :)');
+        this.cargarDatosNuevaSolicitud();
         this.solicitudForm.campos[
           this.getIndexForm('ApellidoNuevo')
         ].deshabilitar = false;
@@ -693,13 +814,15 @@ export class ActualizacionNombresComponent implements OnInit {
         this.solicitudForm.campos[
           this.getIndexForm('ButonEditar')
         ].deshabilitar = false;
+        this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
+          true;
+
         this.respuestaSolicitudForm.campos.forEach((campo) => {
           campo.deshabilitar = true;
         });
         this.loading = false;
       }
     } else {
-      this.solicitudForm.campos[this.getIndexForm('ButonEditar')].id = '';
       if (
         await this.userService.esAutorizado([
           'ADMIN_SGA',
@@ -707,61 +830,84 @@ export class ActualizacionNombresComponent implements OnInit {
         ])
       ) {
         this.Admin = true;
-        this.loadInfoById();
       }
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
         this.Admin = false;
-        this.loadInfo();
-        this.loadInfoById();
       }
     }
   }
 
-  private async procesarDataSolicitud(dataSolicitud: any) {
-    console.log(
-      'procesarDataSolicitud EJECUTANDOSE CON dataSolicitud',
-      dataSolicitud
-    );
+  private async procesarDataSolicitud(dataSolicitud: any | undefined) {
+    console.log('procesarDataSolicitud');
 
-    if (dataSolicitud !== undefined) {
+    if (dataSolicitud && dataSolicitud !== undefined) {
+      console.log('dataSolicitudEstado -->', dataSolicitud.Estado);
+      // SOLICITUD EXISTENTE
       this.solicitudRespuesta.Observacion = dataSolicitud.Observacion;
+      this.solicitudRespuesta.Estado = dataSolicitud.Estado;
 
       if (dataSolicitud.Estado === 'Solicitud generada') {
         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
           false;
-        this.respuestaSolicitudForm.btn = '';
+        this.respuestaSolicitudForm.btn = 'Enviar';
         this.respuestaSolicitudForm.campos.forEach((campo) => {
-          campo.deshabilitar = true;
+          campo.deshabilitar = false;
         });
       }
 
       if (dataSolicitud.Estado === 'Rectificar') {
+        this.Admin = true;
+        // Ocultar botón de editar
         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
           false;
-
+        // Deshabilitar campos de respuesta
         this.respuestaSolicitudForm.campos.forEach((campo) => {
-          campo.deshabilitar = false;
+          campo.deshabilitar = true;
         });
-        this.respuestaSolicitudForm.btn = 'Enviar';
+        // Ocultar boton de enviar
+        this.respuestaSolicitudForm.btn = '';
       }
 
       if (dataSolicitud.Estado === 'Acta aprobada') {
+        console.log('acta aprobada');
+        this.Admin = true;
+        // Deshabilitar campos de respuesta
         this.respuestaSolicitudForm.campos.forEach((campo) => {
-          campo.deshabilitar = false;
+          campo.deshabilitar = true;
         });
+        // Ocultar botón de respuesta
+        this.respuestaSolicitudForm.btn = '';
+        // Ocultar boton de editar
         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
           true;
       }
 
       if (dataSolicitud.Estado === 'Solicitud rechazada') {
-        this.respuestaSolicitudForm.btn = '';
         this.Admin = true;
+        // Deshabilitar campos de respuesta
         this.respuestaSolicitudForm.campos.forEach((campo) => {
           campo.deshabilitar = true;
         });
+        // Ocultar botón de respuesta
+        this.respuestaSolicitudForm.btn = '';
+        // Ocultar boton de editar
         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
           true;
       }
+    } else {
+      // NUEVA SOLICITUD
+      // Ocultar botón de editar
+      this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
+        true;
+      this.solicitudForm.campos;
     }
+  }
+
+  private inicializarRespuestaSolicitud() {
+    this.solicitudRespuesta = new RespuestaSolicitud();
+    this.solicitudRespuesta.Aprobado = false;
+    this.solicitudRespuesta.Observacion = '';
+    this.solicitudRespuesta.SolicitudId = 0;
+    this.respuestaSolicitudForm.campos[1].valor = false;
   }
 }
