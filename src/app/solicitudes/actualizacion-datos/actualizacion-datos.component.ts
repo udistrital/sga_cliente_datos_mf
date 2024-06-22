@@ -15,6 +15,7 @@ import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { SgaMidTercerosService } from 'src/data/services/terceros.service';
+import { UserService } from 'src/data/services/users.service';
 
 @Component({
   selector: 'ngx-actualizacion-datos',
@@ -148,6 +149,7 @@ export class ActualizacionDatosComponent implements OnInit {
     private tercerosService: SgaMidTercerosService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private newNuxeoService: NewNuxeoService,
+    private userService: UserService,
     private popUpManager: PopUpManager) {
     this.solicitudForm = ACTUALIZAR_DATOS;
     this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
@@ -352,9 +354,9 @@ export class ActualizacionDatosComponent implements OnInit {
     );
   }
 
-  loadInfo() {
+  async loadInfo() {
     this.loadInfoSolicitante();
-    const TerceroId = parseInt(decrypt(localStorage.getItem('persona_id')), 10)
+    const TerceroId = await this.userService.getPersonaId()
     if (TerceroId !== undefined) {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor = hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
@@ -439,7 +441,7 @@ export class ActualizacionDatosComponent implements OnInit {
               });
             }
             this.newNuxeoService.uploadFiles(files)
-              .subscribe((data: any) => {
+              .subscribe(async (data: any) => {
                 if (data[0].Status === "200") {
                   this.solicitudDatos['Documento'] = data[0].res.Id
                 }
@@ -457,7 +459,7 @@ export class ActualizacionDatosComponent implements OnInit {
                 if (this.modificado) {
                   Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud')
                 }
-                Solicitud.Solicitante = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
+                Solicitud.Solicitante = await this.userService.getPersonaId();
                 Solicitud.TipoSolicitud = 3;
                 this.sgaMidActualizacionDatosService.post('solicitudes-evaluacion', Solicitud).subscribe(
                   (res: any) => {

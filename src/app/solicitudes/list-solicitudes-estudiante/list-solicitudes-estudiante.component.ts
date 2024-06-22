@@ -8,6 +8,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { decrypt } from 'src/app/utils/util-encrypt';
+import { UserService } from 'src/data/services/users.service';
 
 @Component({
   selector: 'list-solicitudes-estudiante',
@@ -34,6 +35,7 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private popUpManager: PopUpManager,
     private autenticationService: ImplicitAutenticationService,
+    private userService: UserService,
   ) {
     this.showTable = true;
     this.showSolicitudID = false;
@@ -126,8 +128,8 @@ export class ListSolicitudesEstudianteComponent implements OnInit {
     });
   }
 
-  loadSolicitud() {
-    const IdTercero = decrypt(localStorage.getItem('persona_id'));
+  async loadSolicitud() {
+    const IdTercero = await this.userService.getPersonaId();
     this.sgaMidActualizacionDatosService
       .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(

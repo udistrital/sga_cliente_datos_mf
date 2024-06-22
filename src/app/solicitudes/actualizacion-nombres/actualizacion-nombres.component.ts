@@ -17,6 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import { SgaMidTercerosService } from 'src/data/services/terceros.service';
+import { UserService } from 'src/data/services/users.service';
 
 @Component({
   selector: 'actualizacion-nombres',
@@ -148,6 +149,7 @@ export class ActualizacionNombresComponent implements OnInit {
     private sgaMidTerceroService: SgaMidTercerosService,
     private autenticationService: ImplicitAutenticationService,
     private newNuxeoService: NewNuxeoService,
+    private userService: UserService,
     private dialogo: MatDialog) {
     this.solicitudForm = ACTUALIZAR_NOMBRE;
     this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
@@ -380,9 +382,9 @@ export class ActualizacionNombresComponent implements OnInit {
     );
   }
 
-  loadInfo() {
+  async loadInfo() {
     this.loadInfoSolicitante();
-    const TerceroId = parseInt(decrypt(localStorage.getItem('persona_id')), 10)
+    const TerceroId = await this.userService.getPersonaId();
     if (TerceroId !== undefined) {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor = hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
@@ -464,7 +466,7 @@ export class ActualizacionNombresComponent implements OnInit {
               });
             }
             this.newNuxeoService.uploadFiles(files).subscribe(
-              (responseNux: any[]) => {
+              async (responseNux: any[]) => {
                 if (responseNux[0].Status == "200") {
 
                     this.solicitudDatos['Documento'] = responseNux[0].res.Id;
@@ -474,7 +476,7 @@ export class ActualizacionNombresComponent implements OnInit {
                   'America/Bogota').format('YYYY-MM-DD HH:mm:ss');
                 this.solicitudDatos.FechaSolicitud = this.solicitudDatos.FechaSolicitud + ' +0000 +0000';
                 Solicitud.Solicitud = this.solicitudDatos;
-                Solicitud.Solicitante = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
+                Solicitud.Solicitante = await this.userService.getPersonaId();
                 Solicitud.TipoSolicitud = 4;
                 if (this.modificado) {
                   Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud')

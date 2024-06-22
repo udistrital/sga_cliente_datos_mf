@@ -8,6 +8,7 @@ import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
 import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
+import { UserService } from 'src/data/services/users.service';
 // @ts-ignore
 import Swal from 'sweetalert2/dist/sweetalert2';
 
@@ -49,7 +50,8 @@ export class ViewSolicitudesComponent implements OnInit {
     private translate: TranslateService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private popUpManager: PopUpManager,
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private userService: UserService,
   ) {
     this.showTable = true;
     this.showSolicitudID = false;
@@ -155,8 +157,8 @@ export class ViewSolicitudesComponent implements OnInit {
     });
   }
 
-  loadSolicitud() {
-    const IdTercero = decrypt(localStorage.getItem('persona_id'));
+  async loadSolicitud() {
+    const IdTercero = await this.userService.getPersonaId();;
     this.sgaMidActualizacionDatosService
       .get('solicitudes-evaluacion/terceros/' + IdTercero)
       .subscribe(
@@ -224,10 +226,10 @@ export class ViewSolicitudesComponent implements OnInit {
     this.loadListByRol();
   }
 
-  nuevoNombre() {
+  async nuevoNombre() {
     sessionStorage.setItem(
       'TerceroSolitud',
-      decrypt(localStorage.getItem('persona_id'))
+      await this.userService.getPersonaId().toString()
     );
     this.showSolicitudNombre = true;
     this.showSolicitudID = false;
@@ -235,10 +237,10 @@ export class ViewSolicitudesComponent implements OnInit {
     this.nuevaSolicitud = true;
   }
 
-  nuevoID() {
+  async nuevoID() {
     sessionStorage.setItem(
       'TerceroSolitud',
-      decrypt(localStorage.getItem('persona_id'))
+      await this.userService.getPersonaId().toString()
     );
     this.showSolicitudID = true;
     this.showTable = false;
