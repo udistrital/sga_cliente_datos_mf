@@ -61,14 +61,12 @@ export class PageAdministrativoComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    console.log('ngOnInit');
     this.inicializarVariables();
     await this.cargarDatos();
     this.dataSource.filterPredicate = this.customFilterPredicate();
   }
 
   private async cargarDatos() {
-    console.log('cargarDatos');
     try {
       const esAdmin = await this.userService.esAutorizado([
         'ADMIN_SGA',
@@ -90,7 +88,6 @@ export class PageAdministrativoComponent implements OnInit {
   }
 
   private inicializarVariables() {
-    console.log('inicializarVariables');
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
@@ -103,8 +100,6 @@ export class PageAdministrativoComponent implements OnInit {
   }
 
   onclick(data: any) {
-    console.log('onclick');
-    console.log('data -->', data);
     this.solicitudSeleccionada = data;
     sessionStorage.setItem('Solicitud', data.Numero);
     sessionStorage.setItem('TerceroSolitud', data.TerceroId);
@@ -120,7 +115,6 @@ export class PageAdministrativoComponent implements OnInit {
   }
 
   async cargarTodasSolicitudes() {
-    console.log('cargarTodasSolicitudes');
     this.listaDatos = [];
     try {
       await Promise.all([
@@ -141,7 +135,6 @@ export class PageAdministrativoComponent implements OnInit {
   }
 
   cargarSolicitudPorTipo(IdEstadoTipoSolicitud: number): Promise<void> {
-    console.log('cargarSolicitudPorTipo');
     return new Promise((resolve, reject) => {
       this.sgaMidActualizacionDatosService
         .get(`solicitudes/estados/${IdEstadoTipoSolicitud}`)
@@ -172,7 +165,6 @@ export class PageAdministrativoComponent implements OnInit {
   }
 
   async cargarSolicitudPorIdTercero() {
-    console.log('cargarSolicitudPorIdTercero');
     try {
       const IdTercero = await this.userService.getPersonaId();
       this.sgaMidActualizacionDatosService
@@ -209,7 +201,6 @@ export class PageAdministrativoComponent implements OnInit {
   }
 
   cargarDatosTabla(datosCargados: any[]): void {
-    console.log('cargarDatosTabla');
     datosCargados.forEach((registro) => {
       registro.Acciones = {
         icon: 'search',

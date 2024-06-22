@@ -30,7 +30,6 @@ export class ActualizacionNombresComponent implements OnInit {
   @Input()
   set nuevaSolicitud(nuevaSolicitud: boolean) {
     if (nuevaSolicitud) {
-      console.log('nuevaSolicitud', nuevaSolicitud);
       this.procesarDataSolicitud(undefined);
       this.procesarNuevaSolicitud(nuevaSolicitud);
       this.cargarDatosNuevaSolicitud();
@@ -40,7 +39,6 @@ export class ActualizacionNombresComponent implements OnInit {
   @Input()
   set dataSolicitud(dataSolicitud: any) {
     if (dataSolicitud) {
-      console.log('dataSolicitud', dataSolicitud);
       this.solicitudOriginal = dataSolicitud;
       this.inicializarRespuestaSolicitud();
       this.procesarDataSolicitud(dataSolicitud);
@@ -87,7 +85,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   getSolicitante() {
-    console.log('getSolicitante');
     this.loading = true;
     const IdTercero = sessionStorage.getItem('TerceroSolitud');
     if (IdTercero !== undefined) {
@@ -118,7 +115,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   getSolicitud() {
-    console.log('getSolicitud');
     this.getSolicitante();
     const IdSolicitud = sessionStorage.getItem('Solicitud');
     if (IdSolicitud !== undefined) {
@@ -180,7 +176,6 @@ export class ActualizacionNombresComponent implements OnInit {
                 this.newNuxeoService.getFiles(files).subscribe(
                   (res) => {
                     const filesResponse = <any>res;
-                    console.log('FILES RESPONSE', filesResponse);
 
                     if (Object.keys(filesResponse).length === files.length) {
                       this.SoporteDocumento = this.solicitudForm.Documento;
@@ -227,7 +222,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarRespuesta(event) {
-    console.log('enviarRespuesta');
     this.loading = true;
     this.solicitudRespuesta = new RespuestaSolicitud();
     this.solicitudRespuesta.SolicitudId = parseInt(
@@ -297,7 +291,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   loadInfoNueva() {
-    console.log('loadInfoNueva');
     const IdSolcitud = localStorage.getItem('Solicitud');
     this.SoporteDocumento = [];
     this.sgaMidActualizacionDatosService
@@ -449,7 +442,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   async cargarDatosNuevaSolicitud() {
-    console.log('cargarDatosNuevaSolicitud');
     const TerceroId = await this.userService.getPersonaId();
     if (TerceroId !== undefined) {
       const hoy = new Date();
@@ -476,7 +468,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   cargoDatos(event) {
-    console.log('cargoDatos');
     this.loading = !event;
   }
 
@@ -491,7 +482,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   async construirForm() {
-    console.log('construirForm');
     this.solicitudForm.titulo = await this.translate.instant(
       'solicitudes.solicitud_encabezado'
     );
@@ -523,7 +513,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   enviarSolicitud(event) {
-    console.log('enviarSolicitud', event);
     if (event.valid) {
       const opt: any = {
         title: this.translate.instant('solicitudes.enviar'),
@@ -537,7 +526,6 @@ export class ActualizacionNombresComponent implements OnInit {
       };
       Swal.fire(opt).then((willDelete) => {
         if (willDelete.value) {
-          console.log('WILL DELETE VALUE', willDelete.value);
           this.loading = true;
           const files = [];
           const Solicitud: any = {};
@@ -545,14 +533,12 @@ export class ActualizacionNombresComponent implements OnInit {
 
           const documentoIndex = this.getIndexForm('Documento');
           if (this.solicitudDatos['Documento'].file !== undefined) {
-            console.log('FILE', this.solicitudDatos['Documento'].file);
             files.push({
               IdDocumento: 25,
               nombre: this.userService.getPayload().sub,
               file: this.solicitudDatos['Documento'].file,
             });
           } else if (this.solicitudForm.campos[documentoIndex].file) {
-            console.log('SOLICITUD FORM', this.solicitudForm.campos);
             files.push({
               IdDocumento: 25,
               nombre: this.userService.getPayload().sub,
@@ -560,12 +546,10 @@ export class ActualizacionNombresComponent implements OnInit {
             });
           }
 
-          console.log('FILES', files);
 
           if (files.length > 0 && files[0].file instanceof Blob) {
             this.newNuxeoService.uploadFiles(files).subscribe(
               (responseNux: any[]) => {
-                console.log('RESPONSE NUX', responseNux);
                 if (responseNux[0].Status === '200') {
                   this.solicitudDatos['Documento'] = responseNux[0].res.Id;
                   this.finalizarSolicitud(Solicitud);
@@ -597,7 +581,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   finalizarSolicitud(Solicitud: any) {
-    console.log('finalizarSolicitud');
     const hoy = new Date();
     this.solicitudDatos.FechaSolicitud = momentTimezone
       .tz(
@@ -605,7 +588,6 @@ export class ActualizacionNombresComponent implements OnInit {
         'America/Bogota'
       )
       .format('YYYY-MM-DD HH:mm:ss');
-    console.log('FECHA DE SOLICITUD -->', this.solicitudDatos.FechaSolicitud);
     this.solicitudDatos.FechaSolicitud =
       this.solicitudDatos.FechaSolicitud + ' +0000 +0000';
     Solicitud.Solicitud = this.solicitudDatos;
@@ -637,7 +619,6 @@ export class ActualizacionNombresComponent implements OnInit {
     switch (estado) {
       case 'Solicitud generada':
         // Si el estado es solicitud generada, se modificar la solicitud original
-        console.log(`MODIFCANDO SOLICITUD ORIGINAL...`, solicitud);
         this.putSolicitud(solicitud);
         break;
       case 'Rectificar':
@@ -746,7 +727,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   async habilitarRevision(event) {
-    console.log('habilitarRevision');
     if (event.button === 'ButonEditar') {
       if (
         await this.userService.esAutorizado([
@@ -779,7 +759,6 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   private async procesarNuevaSolicitud(nuevaSolicitud: boolean) {
-    console.log('procesarNuevaSolicitud');
     if (!this.solicitudForm) {
       console.error('solicitudForm is undefined');
       return;
@@ -801,7 +780,6 @@ export class ActualizacionNombresComponent implements OnInit {
       this.Admin = false;
 
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
-        console.log('HABILITANDO CAMPOS :)');
         this.cargarDatosNuevaSolicitud();
         this.solicitudForm.campos[
           this.getIndexForm('ApellidoNuevo')
@@ -838,10 +816,8 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   private async procesarDataSolicitud(dataSolicitud: any | undefined) {
-    console.log('procesarDataSolicitud');
 
     if (dataSolicitud && dataSolicitud !== undefined) {
-      console.log('dataSolicitudEstado -->', dataSolicitud.Estado);
       // SOLICITUD EXISTENTE
       this.solicitudRespuesta.Observacion = dataSolicitud.Observacion;
       this.solicitudRespuesta.Estado = dataSolicitud.Estado;
@@ -869,7 +845,6 @@ export class ActualizacionNombresComponent implements OnInit {
       }
 
       if (dataSolicitud.Estado === 'Acta aprobada') {
-        console.log('acta aprobada');
         this.Admin = true;
         // Deshabilitar campos de respuesta
         this.respuestaSolicitudForm.campos.forEach((campo) => {

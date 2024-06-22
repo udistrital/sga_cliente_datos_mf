@@ -146,7 +146,6 @@ export class DynamicFormComponent implements OnInit, OnChanges {
                     case 'checkboxcombo':
                       const estado = this.modeloData.Estado;
                       if (this.estadosMap && estado in this.estadosMap) {
-                        console.log("HOLAAAAAAAA CHECK COMBO")
                         element.valor = this.estadosMap[estado];
                       }
                       break;
