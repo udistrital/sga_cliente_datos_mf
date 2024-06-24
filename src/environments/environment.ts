@@ -1,6 +1,7 @@
 export const environment = {
     production: false,
     apiUrl: 'http://localhost:4202/',
+    encryptSecretKey: process.env["NG_APP_KEY"],
     TOKEN: {
       AUTORIZATION_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oauth2/authorize',
       CLIENTE_ID: 'e36v1MPQk2jbz9KM4SmKhk8Cyw0a',
