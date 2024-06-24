@@ -1,0 +1,21 @@
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Optional, for spacing between items */
+  }
+  
+  .flex-item {
+    flex: 1;
+    min-width: 200px; /* Adjust as necessary */
+  }
+  
+  @media (max-width: 768px) { /* Adjust the max-width as necessary */
+    .filter-container {
+      flex-direction: column;
+    }
+  
+    .flex-item {
+      width: 100%;
+    }
+  }
+  

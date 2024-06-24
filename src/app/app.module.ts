@@ -26,6 +26,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { EmptyRouteComponent } from './empty-route/empty-route.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SpinnerUtilInterceptor, SpinnerUtilModule } from 'spinner-util';
+import { DialogPreviewFileComponent } from './components/dialog-preview-file/dialog-preview-file.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, environment.apiUrl + 'assets/i18n/', '.json');
@@ -34,7 +35,8 @@ export function createTranslateLoader(http: HttpClient) {
 @NgModule({
   declarations: [
     AppComponent,
-    EmptyRouteComponent
+    EmptyRouteComponent,
+    DialogPreviewFileComponent
   ],
   imports: [
     MatTabsModule,
