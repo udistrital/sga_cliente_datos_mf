@@ -4,11 +4,11 @@ import { RequestManager } from 'src/app/managers/request_manager';
 @Injectable({
   providedIn: 'root',
 })
-export class TercerosService {
+export class TercerosMidService {
   constructor(private requestManager: RequestManager) {}
 
   private setPath() {
-    this.requestManager.setPath('TERCEROS_SERVICE');
+    this.requestManager.setPath('TERCEROS_MID_SERVICE');
   }
 
   get(endpoint) {

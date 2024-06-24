@@ -649,6 +649,27 @@
                 <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
               </div>
 
+              <!-- checkboxcombo -->
+              <div
+                *ngSwitchCase="'checkboxcombo'"
+                class="form-group validation-checkboxes mt-4"
+              >
+                <div
+                  *ngFor="let key of getKeys(c.opciones); let i = index"
+                  class="form-check"
+                >
+                  <mat-checkbox
+                    class="example-margin"
+                    [checked]="c.valor === key"
+                    (change)="onCheckboxComboChange(c, key)"
+                    [disabled]="c.deshabilitar"
+                  >
+                    {{ c.opciones[key] }}
+                  </mat-checkbox>
+                </div>
+                <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
+              </div>
+
               <!-- textarea -->
               <mat-form-field
                 *ngSwitchCase="'textarea'"
@@ -870,13 +891,177 @@
                 <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
               </div>
 
+              <!-- input-file -->
+              <div
+                *ngSwitchCase="'file'"
+                class="input-file {{ c.clase }} {{
+                  c.ocultar ? 'no-mostrar' : ''
+                }}"
+              >
+                <div class="row">
+                  <!-- Contenedor cuando NO hay un archivo cargado -->
+                  <div *ngIf="!c.urlTemp" class="col-12">
+                    <label for="{{ c.nombre }}" class="upload-file">
+                      {{ c.requerido ? "* " + c.label : c.label }}
+                    </label>
+                    <input
+                      #documento
+                      [disabled]="c.deshabilitar"
+                      type="file"
+                      id="{{ c.nombre }}"
+                      (change)="onChange($event, c)"
+                    />
+                    <mat-hint class="text-danger">{{ c.alerta }}</mat-hint>
+                  </div>
+
+                  <!-- Contenedor cuando hay un archivo cargado -->
+                  <div *ngIf="c.urlTemp">
+                    <div style="display: flex; justify-content: space-between">
+                      <div style="flex: 1; display: flex; align-items: center">
+                        <div
+                          class="ver-documento"
+                          (click)="download(c.urlTemp, c.nombre)"
+                          style="
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                          "
+                        >
+                          <mat-icon>download</mat-icon>
+                          <span>{{ c.label }}</span>
+                        </div>
+                      </div>
+                      <div id="document-close">
+                        <button
+                          [disabled]="c.deshabilitar"
+                          mat-icon-button
+                          color="warn"
+                          (click)="removeFile(c)"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- input-file with revision -->
+              <mat-form-field
+                *ngSwitchCase="'fileRev'"
+                style="width: 100%"
+                class="form-group"
+                floatLabel="always"
+                [hidden]="c.ocultar"
+              >
+                <input
+                  #documento
+                  type="file"
+                  (change)="onChange2($event, c)"
+                  style="display: none"
+                />
+                <mat-label>{{
+                  c.requerido ? "* " + c.label : c.label
+                }}</mat-label>
+                <div class="row">
+                  <div class="col-9">
+                    <button
+                      type="button"
+                      mat-raised-button
+                      (click)="documento.click()"
+                      [disabled]="
+                        (c.estadoDoc ? c.estadoDoc.aprobado : false) ||
+                        (c.deshabilitar ? c.deshabilitar : false)
+                      "
+                    >
+                      {{ "GLOBAL.seleccionar_archivo" | translate }}
+                    </button>
+                    <span
+                      *ngIf="c.File"
+                      class="enlace-documento"
+                      (click)="
+                        download(
+                          c.urlTemp,
+                          c.File.name,
+                          500,
+                          500,
+                          c.previewForm,
+                          c.messagepreview
+                        )
+                      "
+                      title="{{
+                        'GLOBAL.tooltip_previsualizar_archivo' | translate
+                      }}"
+                    >
+                      {{ c.File?.name }}
+                    </span>
+                  </div>
+                  <div class="col-3">
+                    <span
+                      *ngIf="c.valor && !c.File"
+                      class="enlace-documento alinear"
+                      (click)="
+                        download(
+                          c.valor,
+                          c.nombre,
+                          500,
+                          500,
+                          c.previewForm,
+                          c.messagepreview
+                        )
+                      "
+                      title="{{
+                        'GLOBAL.tooltip_descargar_arhivo' | translate
+                      }}"
+                    >
+                      <i
+                        class="fa fa-cloud-download fa-2x"
+                        aria-hidden="true"
+                      ></i>
+                      <i>{{ "GLOBAL.tooltip_descargar" | translate }}</i>
+                    </span>
+                  </div>
+                </div>
+                <mat-hint style="width: 100%">
+                  <div class="row text-danger">
+                    <div class="col-12">{{ c.alerta }}</div>
+                  </div>
+                  <div
+                    *ngIf="c.estadoDoc && !c.File"
+                    class="row"
+                    style="font-size: 13px"
+                  >
+                    <div
+                      class="col-4"
+                      [ngClass]="{
+                        'text-danger': c.estadoDoc.aprobado == false
+                      }"
+                    >
+                      {{ "GLOBAL.estado" | translate }}:
+                      {{ c.estadoDoc.estadoObservacion }}
+                    </div>
+                    <div class="col-8">
+                      {{ "GLOBAL.observacion" | translate }}:
+                      {{ c.estadoDoc.observacion }}
+                    </div>
+                  </div>
+                </mat-hint>
+                <input matInput style="display: none" />
+              </mat-form-field>
+
               <!--buttton -->
               <div
                 *ngSwitchCase="'button'"
                 class="row {{ c.ocultar ? 'no-mostrar' : '' }}"
               >
                 <div class="{{ c.claseGrid }}">
-                  <button mat-flat-button color="accent" id="{{ c.id }}" (click)="auxButton(c)">
+                  <button
+                    mat-flat-button
+                    color="accent"
+                    id="{{ c.id }}"
+                    (click)="auxButton(c)"
+                    [disabled]="c.deshabilitar"
+                  >
                     <i class="{{ c.icono }}"></i>
                     {{ c.label }}
                   </button>
@@ -894,7 +1079,7 @@
         </div>
         <ng-content></ng-content>
         <div
-          style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;"
+          style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem"
           *ngIf="normalform.btnLimpiar || normalform.btn"
         >
           <button

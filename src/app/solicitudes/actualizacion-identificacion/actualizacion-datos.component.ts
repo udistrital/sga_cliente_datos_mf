@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { ACTUALIZAR_NOMBRE } from './form-actualizacion-nombres';
-import { ESTADOSMAP, RESPUESTA_SOLICITUD } from '../actualizacion-identificacion/form-respuesta-solicitud';
+import { ACTUALIZAR_DATOS } from './form-actualizacion-datos';
+import { ESTADOSMAP, RESPUESTA_SOLICITUD } from './form-respuesta-solicitud';
 import { HttpErrorResponse } from '@angular/common/http';
 // @ts-ignore
 import Swal from 'sweetalert2/dist/sweetalert2';
@@ -9,7 +9,7 @@ import * as momentTimezone from 'moment-timezone';
 import * as moment from 'moment';
 import { RespuestaSolicitud } from 'src/data/models/respuesta-solicitud';
 import { Solicitante } from 'src/data/models/solicitante';
-import { ActualizacionNombre } from 'src/data/models/actualizacion-nombre';
+import { ActualizacionDatos } from 'src/data/models/actualizacion-datos';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,14 +19,14 @@ import { TercerosMidService } from 'src/data/services/terceros_mid.service';
 import { TercerosService } from 'src/data/services/terceros.service';
 import { UserService } from 'src/data/services/user.service';
 import { ApiMidResponse } from 'src/app/models/api-mid-response.interface';
-import { PutSolicitudNombre } from '../models/solicitud';
+import { PutSolicitudIdentificacion } from '../models/solicitud';
 
 @Component({
-  selector: 'actualizacion-nombres',
-  templateUrl: './actualizacion-nombres.component.html',
+  selector: 'ngx-actualizacion-datos',
+  templateUrl: './actualizacion-datos.component.html',
   styleUrls: ['../solicitudes.component.scss'],
 })
-export class ActualizacionNombresComponent implements OnInit {
+export class ActualizacionDatosComponent implements OnInit {
   @Input()
   set nuevaSolicitud(nuevaSolicitud: boolean) {
     if (nuevaSolicitud) {
@@ -51,7 +51,7 @@ export class ActualizacionNombresComponent implements OnInit {
   solicitante: Solicitante;
   solicitudForm: any;
   respuestaSolicitudForm: any = RESPUESTA_SOLICITUD;
-  solicitudDatos: ActualizacionNombre;
+  solicitudDatos: ActualizacionDatos;
   solicitudRespuesta: RespuestaSolicitud;
   filesUp: any;
   SoporteDocumento: any;
@@ -60,7 +60,7 @@ export class ActualizacionNombresComponent implements OnInit {
   Admin: boolean = false;
   loading: boolean = false;
   solicitudOriginal = null;
-  estadosMap=ESTADOSMAP; 
+  estadosMap=ESTADOSMAP;
 
   constructor(
     private translate: TranslateService,
@@ -71,7 +71,7 @@ export class ActualizacionNombresComponent implements OnInit {
     private newNuxeoService: NewNuxeoService,
     private userService: UserService
   ) {
-    this.solicitudForm = ACTUALIZAR_NOMBRE;
+    this.solicitudForm = ACTUALIZAR_DATOS;
     this.respuestaSolicitudForm = RESPUESTA_SOLICITUD;
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.construirForm();
@@ -134,28 +134,44 @@ export class ActualizacionNombresComponent implements OnInit {
                 .tz(response.Data.FechaSolicitud, 'America/Bogota')
                 .format('DD/MM/YYYY');
               this.solicitudForm.campos[
-                this.getIndexForm('NombreActual')
-              ].valor = response.Data.NombreActual;
+                this.getIndexForm('TipoDocumentoActual')
+              ].valor = response.Data.TipoDocumentoActual;
               this.solicitudForm.campos[
-                this.getIndexForm('NombreActual')
+                this.getIndexForm('TipoDocumentoActual')
               ].deshabilitar = true;
               this.solicitudForm.campos[
-                this.getIndexForm('ApellidoActual')
-              ].valor = response.Data.ApellidoActual;
+                this.getIndexForm('NumeroActual')
+              ].valor = response.Data.NumeroActual;
               this.solicitudForm.campos[
-                this.getIndexForm('ApellidoActual')
+                this.getIndexForm('NumeroActual')
               ].deshabilitar = true;
               this.solicitudForm.campos[
-                this.getIndexForm('NombreNuevo')
-              ].valor = response.Data.NombreNuevo;
+                this.getIndexForm('TipoDocumentoNuevo')
+              ].valor = response.Data.TipoDocumentoNuevo;
               this.solicitudForm.campos[
-                this.getIndexForm('NombreNuevo')
+                this.getIndexForm('TipoDocumentoNuevo')
               ].deshabilitar = true;
               this.solicitudForm.campos[
-                this.getIndexForm('ApellidoNuevo')
-              ].valor = response.Data.ApellidoNuevo;
+                this.getIndexForm('NumeroNuevo')
+              ].valor = response.Data.NumeroNuevo;
               this.solicitudForm.campos[
-                this.getIndexForm('ApellidoNuevo')
+                this.getIndexForm('NumeroNuevo')
+              ].deshabilitar = true;
+              this.solicitudForm.campos[
+                this.getIndexForm('FechaExpedicionNuevo')
+              ].valor = momentTimezone
+                .tz(response.Data.FechaExpedicionNuevo, 'America/Bogota')
+                .format('YYYY-MM-DD');
+              this.solicitudForm.campos[
+                this.getIndexForm('FechaExpedicionNuevo')
+              ].deshabilitar = true;
+              this.solicitudForm.campos[
+                this.getIndexForm('FechaExpedicionActual')
+              ].valor = momentTimezone
+                .tz(response.Data.FechaExpedicionActual, 'America/Bogota')
+                .format('DD/MM/YYYY');
+              this.solicitudForm.campos[
+                this.getIndexForm('FechaExpedicionActual')
               ].deshabilitar = true;
               this.solicitudForm.campos[
                 this.getIndexForm('ButonEditar')
@@ -223,11 +239,14 @@ export class ActualizacionNombresComponent implements OnInit {
 
   enviarRespuesta(event) {
     this.loading = true;
+
     this.solicitudRespuesta = new RespuestaSolicitud();
+
     this.solicitudRespuesta.SolicitudId = parseInt(
       sessionStorage.getItem('Solicitud'),
       10
     );
+
     this.solicitudRespuesta.Observacion =
       this.respuestaSolicitudForm.campos[
         this.getIndexForm('Observacion')
@@ -255,7 +274,6 @@ export class ActualizacionNombresComponent implements OnInit {
         this.popUpManager.showInfoToast('No seleccionado el tipo de respuesta');
         return;
     }
-
     this.sgaMidActualizacionDatosService
       .post('solicitudes/evoluciones', this.solicitudRespuesta)
       .subscribe(
@@ -273,7 +291,6 @@ export class ActualizacionNombresComponent implements OnInit {
                 this.solicitudEnviada.emit(true);
               }
             });
-            this.getSolicitud();
           } else if (response.Status === 400) {
             this.loading = false;
             this.popUpManager.showErrorToast(
@@ -298,16 +315,16 @@ export class ActualizacionNombresComponent implements OnInit {
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
-            this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor =
-              response.Data.Resultado.NombreNuevo;
             this.solicitudForm.campos[
-              this.getIndexForm('NombreNuevo')
+              this.getIndexForm('TipoDocumentoNuevo')
+            ].valor = response.Data.Resultado.TipoDocumentoNuevo;
+            this.solicitudForm.campos[
+              this.getIndexForm('TipoDocumentoNuevo')
             ].deshabilitar = true;
+            this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor =
+              response.Data.Resultado.NumeroNuevo;
             this.solicitudForm.campos[
-              this.getIndexForm('ApellidoNuevo')
-            ].valor = response.Data.Resultado.ApellidoNuevo;
-            this.solicitudForm.campos[
-              this.getIndexForm('ApellidoNuevo')
+              this.getIndexForm('NumeroNuevo')
             ].deshabilitar = true;
             this.solicitudForm.Documento = response.Data.Resultado.Documento;
             const files = [];
@@ -344,87 +361,19 @@ export class ActualizacionNombresComponent implements OnInit {
               );
             }
           } else if (response.Status === 404) {
-            this.sgaMidActualizacionDatosService
-              .get('solicitudes/' + IdSolcitud + '/18')
-              .subscribe(
-                (response: any) => {
-                  if (response.Status === 200) {
-                    this.solicitudForm.campos[
-                      this.getIndexForm('NombreNuevo')
-                    ].valor = response.Data.Resultado.NombreNuevo;
-                    this.solicitudForm.campos[
-                      this.getIndexForm('NombreNuevo')
-                    ].deshabilitar = true;
-                    this.solicitudForm.campos[
-                      this.getIndexForm('ApellidoNuevo')
-                    ].valor = response.Data.Resultado.ApellidoNuevo;
-                    this.solicitudForm.campos[
-                      this.getIndexForm('ApellidoNuevo')
-                    ].deshabilitar = true;
-                    this.solicitudForm.Documento =
-                      response.Data.Resultado.Documento;
-                    const files = [];
-                    if (this.solicitudForm.Documento + '' !== '0') {
-                      files.push({ Id: this.solicitudForm.Documento });
-                    }
-                    if (
-                      this.solicitudForm.Documento !== undefined &&
-                      this.solicitudForm.Documento !== null &&
-                      this.solicitudForm.Documento !== 0
-                    ) {
-                      this.newNuxeoService.get(files).subscribe(
-                        (res) => {
-                          const filesResponse = <any>res;
-                          if (
-                            Object.keys(filesResponse).length === files.length
-                          ) {
-                            this.SoporteDocumento =
-                              this.solicitudForm.Documento;
-                            this.solicitudForm.btn = '';
-                            this.solicitudForm.campos[
-                              this.getIndexForm('Documento')
-                            ].urlTemp = filesResponse[0].url;
-                            this.solicitudForm.campos[
-                              this.getIndexForm('Documento')
-                            ].valor = filesResponse[0].url;
-                          }
-                          this.loading = false;
-                        },
-                        (error: HttpErrorResponse) => {
-                          this.loading = false;
-                          this.popUpManager.showAlert(
-                            '',
-                            this.translate.instant(
-                              'formacion_academica.no_data'
-                            )
-                          );
-                        }
-                      );
-                    } else {
-                      this.loading = false;
-                    }
-                  } else if (response.Status === 404) {
-                    this.solicitudForm.campos[
-                      this.getIndexForm('ApellidoNuevo')
-                    ].deshabilitar = false;
-                    this.solicitudForm.campos[
-                      this.getIndexForm('ApellidoNuevo')
-                    ].deshabilitar = false;
-                    this.loading = false;
-                  } else {
-                    this.loading = false;
-                    this.popUpManager.showErrorToast(
-                      this.translate.instant('ERROR.general')
-                    );
-                  }
-                },
-                () => {
-                  this.loading = false;
-                  this.popUpManager.showErrorToast(
-                    this.translate.instant('ERROR.general')
-                  );
-                }
-              );
+            this.solicitudForm.campos[
+              this.getIndexForm('TipoDocumentoNuevo')
+            ].deshabilitar = false;
+            this.solicitudForm.campos[
+              this.getIndexForm('NumeroNuevo')
+            ].deshabilitar = false;
+            this.solicitudForm.campos[
+              this.getIndexForm('FechaExpedicionNuevo')
+            ].deshabilitar = false;
+            this.solicitudForm.campos[
+              this.getIndexForm('Documento')
+            ].deshabilitar = false;
+            this.loading = false;
           } else {
             this.loading = false;
             this.popUpManager.showErrorToast(
@@ -442,28 +391,42 @@ export class ActualizacionNombresComponent implements OnInit {
   }
 
   async cargarDatosNuevaSolicitud() {
-    const TerceroId = await this.userService.getPersonaId();
+    const TerceroId = parseInt(decrypt(localStorage.getItem('persona_id')), 10);
     if (TerceroId !== undefined) {
       const hoy = new Date();
       this.solicitudForm.campos[this.getIndexForm('FechaSolicitud')].valor =
         hoy.getFullYear() + '/' + (hoy.getMonth() + 1) + '/' + hoy.getDate();
-      this.tercerosService.get('tercero/' + TerceroId).subscribe(
-        (tercero: any) => {
-          if (tercero !== undefined && tercero !== '') {
-            this.solicitudForm.campos[this.getIndexForm('NombreActual')].valor =
-              tercero['PrimerNombre'] + ' ' + tercero['SegundoNombre'];
-            this.solicitudForm.campos[
-              this.getIndexForm('ApellidoActual')
-            ].valor =
-              tercero['PrimerApellido'] + ' ' + tercero['SegundoApellido'];
+      this.tercerosService
+        .get(
+          'datos_identificacion?query=TerceroId:' + TerceroId + ',Activo:true'
+        )
+        .subscribe(
+          (response: any) => {
+            if (response[0] !== undefined && response[0] !== '') {
+              this.solicitudForm.campos[
+                this.getIndexForm('TipoDocumentoActual')
+              ].valor = response[0]['TipoDocumentoId'];
+              this.solicitudForm.campos[
+                this.getIndexForm('NumeroActual')
+              ].valor = response[0]['Numero'];
+              if (response[0]['FechaExpedicion'] !== null) {
+                response[0]['FechaExpedicion'] = response[0][
+                  'FechaExpedicion'
+                ].slice(0, response[0]['FechaExpedicion'].indexOf('T'));
+                this.solicitudForm.campos[
+                  this.getIndexForm('FechaExpedicionActual')
+                ].valor = momentTimezone
+                  .tz(response[0]['FechaExpedicion'], 'America/Bogota')
+                  .format('DD/MM/YYYY');
+              }
+            }
+          },
+          () => {
+            this.popUpManager.showErrorToast(
+              this.translate.instant('ERROR.general')
+            );
           }
-        },
-        () => {
-          this.popUpManager.showErrorToast(
-            this.translate.instant('ERROR.general')
-          );
-        }
-      );
+        );
     }
   }
 
@@ -505,6 +468,13 @@ export class ActualizacionNombresComponent implements OnInit {
 
         campo.info = this.translate.instant('solicitudes.' + campo.label_i18n);
       }
+      if (campo.etiqueta === 'select') {
+        try {
+          campo.opciones = await this.getTiposDeDocumento();
+        } catch (error) {
+          console.error(error);
+        }
+      }
       campo.label = this.translate.instant('solicitudes.' + campo.label_i18n);
     });
     await this.respuestaSolicitudForm.campos.forEach((campo) => {
@@ -529,7 +499,7 @@ export class ActualizacionNombresComponent implements OnInit {
           this.loading = true;
           const files = [];
           const Solicitud: any = {};
-          this.solicitudDatos = event.data;
+          this.solicitudDatos = event.data.solicitudDatos;
 
           const documentoIndex = this.getIndexForm('Documento');
           if (this.solicitudDatos['Documento'].file !== undefined) {
@@ -595,7 +565,7 @@ export class ActualizacionNombresComponent implements OnInit {
       decrypt(localStorage.getItem('persona_id')),
       10
     );
-    Solicitud.TipoSolicitud = 4;
+    Solicitud.TipoSolicitud = 3;
 
     if (this.modificado) {
       Solicitud.SolicitudPadreId = sessionStorage.getItem('Solicitud');
@@ -635,14 +605,22 @@ export class ActualizacionNombresComponent implements OnInit {
 
   private putSolicitud(solicitud: any) {
     // Creando estructura de datos que recibe el /solicitud [put]
-    const putSolicitud: PutSolicitudNombre = {
+    const putSolicitud: PutSolicitudIdentificacion = {
       DatosAnteriores: {
-        ApellidoActual: solicitud.Solicitud.ApellidoActual,
-        NombreActual: solicitud.Solicitud.NombreActual,
+        FechaExpedicionActual: solicitud.Solicitud.FechaExpedicionActual,
+        NumeroActual: solicitud.Solicitud.NumeroActual,
+        TipoDocumentoActual: {
+          Id: solicitud.Solicitud.TipoDocumentoActual.Id,
+          Nombre: solicitud.Solicitud.TipoDocumentoActual.Nombre,
+        },
       },
       DatosNuevos: {
-        ApellidoNuevo: solicitud.Solicitud.ApellidoNuevo,
-        NombreNuevo: solicitud.Solicitud.NombreNuevo,
+        FechaExpedicionNuevo: solicitud.Solicitud.FechaExpedicionNuevo,
+        NumeroNuevo: solicitud.Solicitud.NumeroNuevo,
+        TipoDocumentoNuevo: {
+          Id: solicitud.Solicitud.TipoDocumentoNuevo.Id,
+          Nombre: solicitud.Solicitud.TipoDocumentoNuevo.Nombre,
+        },
       },
       DocumentoId: solicitud.Solicitud.Documento,
     };
@@ -738,12 +716,15 @@ export class ActualizacionNombresComponent implements OnInit {
       }
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
         this.solicitudForm.campos[
-          this.getIndexForm('ApellidoNuevo')
+          this.getIndexForm('TipoDocumentoNuevo')
         ].deshabilitar = false;
         this.solicitudForm.campos[this.getIndexForm('Documento')].deshabilitar =
           false;
         this.solicitudForm.campos[
-          this.getIndexForm('NombreNuevo')
+          this.getIndexForm('NumeroNuevo')
+        ].deshabilitar = false;
+        this.solicitudForm.campos[
+          this.getIndexForm('FechaExpedicionNuevo')
         ].deshabilitar = false;
         this.solicitudForm.campos[
           this.getIndexForm('ButonEditar')
@@ -770,8 +751,12 @@ export class ActualizacionNombresComponent implements OnInit {
     }
 
     if (nuevaSolicitud) {
-      this.solicitudForm.campos[this.getIndexForm('ApellidoNuevo')].valor = '';
-      this.solicitudForm.campos[this.getIndexForm('NombreNuevo')].valor = '';
+      this.solicitudForm.campos[this.getIndexForm('TipoDocumentoNuevo')].valor =
+        '';
+      this.solicitudForm.campos[this.getIndexForm('NumeroNuevo')].valor = '';
+      this.solicitudForm.campos[
+        this.getIndexForm('FechaExpedicionNuevo')
+      ].valor = '';
       this.solicitudForm.campos[this.getIndexForm('Documento')].urlTemp = '';
       this.solicitudForm.campos[this.getIndexForm('Documento')].valor = '';
       this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
@@ -780,17 +765,16 @@ export class ActualizacionNombresComponent implements OnInit {
       this.Admin = false;
 
       if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
-        this.cargarDatosNuevaSolicitud();
         this.solicitudForm.campos[
-          this.getIndexForm('ApellidoNuevo')
+          this.getIndexForm('TipoDocumentoNuevo')
         ].deshabilitar = false;
         this.solicitudForm.campos[this.getIndexForm('Documento')].deshabilitar =
           false;
         this.solicitudForm.campos[
-          this.getIndexForm('NombreNuevo')
+          this.getIndexForm('NumeroNuevo')
         ].deshabilitar = false;
         this.solicitudForm.campos[
-          this.getIndexForm('ButonEditar')
+          this.getIndexForm('FechaExpedicionNuevo')
         ].deshabilitar = false;
         this.solicitudForm.campos[this.getIndexForm('ButonEditar')].ocultar =
           true;
@@ -883,6 +867,10 @@ export class ActualizacionNombresComponent implements OnInit {
     this.solicitudRespuesta.Aprobado = false;
     this.solicitudRespuesta.Observacion = '';
     this.solicitudRespuesta.SolicitudId = 0;
-    this.respuestaSolicitudForm.campos[1].valor = false;
+    this.respuestaSolicitudForm.campos[1].valor = null;
+  }
+
+  private getTiposDeDocumento(): Promise<any> {
+    return this.tercerosService.get('tipo_documento?&limit=0').toPromise();
   }
 }

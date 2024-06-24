@@ -1,0 +1,141 @@
+<h1>Administrativo</h1>
+<mat-card>
+  <div [hidden]="!showTable">
+    <mat-card-header>
+      <mat-card-title>
+        {{ "MENU.gestionar_solicitudes.solicitudes_actualizacion" | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="filter-container">
+        <mat-form-field appearance="outline" class="flex-item">
+          <mat-label>Buscar</mat-label>
+          <input
+            matInput
+            (keyup)="applyFilter($event.target.value)"
+            placeholder="Buscar en la tabla"
+            [(ngModel)]="filterValue"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-item">
+          <mat-label>Filtrar por Tipo</mat-label>
+          <mat-select
+            (selectionChange)="applyTipoFilter($event.value)"
+            [(value)]="selectedTipo"
+          >
+            <mat-option *ngFor="let tipo of tiposSolicitud" [value]="tipo">{{
+              tipo
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-item">
+          <mat-label>Filtrar por Estado</mat-label>
+          <mat-select
+            (selectionChange)="applyEstadoFilter($event.value)"
+            [(value)]="selectedEstado"
+          >
+            <mat-option
+              *ngFor="let estado of estadosSolicitud"
+              [value]="estado"
+              >{{ estado }}</mat-option
+            >
+          </mat-select>
+        </mat-form-field>
+        <button
+          mat-fab
+          extended
+          color="primary"
+          class="flex-item"
+          (click)="resetFilters()"
+        >
+          <mat-icon>refresh</mat-icon>
+          <span>Limpiar Filtros</span>
+        </button>
+      </div>
+      <div class="table">
+        <table mat-table [dataSource]="dataSource" matSort>
+          <ng-container
+            *ngFor="let columna of displayedColumns"
+            [matColumnDef]="columna"
+          >
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ nombresColumnas[columna] | translate }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let fila; let i = index"
+              [ngClass]="{
+                'row-par': i % 2 === 0,
+                'row-impar': i % 2 !== 0,
+                'row-hover': hoverIndex === i
+              }"
+              (mouseover)="hoverIndex = i"
+              (mouseout)="hoverIndex = null"
+            >
+              <ng-container *ngIf="columna != 'Acciones'">
+                {{ fila[columna] }}
+              </ng-container>
+
+              <ng-container *ngIf="columna == 'Acciones'">
+                <button
+                  mat-icon-button
+                  color="accent"
+                  [matTooltip]="fila[columna]?.label"
+                  (click)="onclick(fila)"
+                >
+                  <mat-icon [class]="fila[columna]?.class">{{
+                    fila[columna]?.icon
+                  }}</mat-icon>
+                </button>
+              </ng-container>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let fila; columns: displayedColumns"></tr>
+        </table>
+
+        <mat-paginator
+          [pageSize]="10"
+          [pageSizeOptions]="[]"
+          showFirstLastButtons
+        ></mat-paginator>
+      </div>
+    </mat-card-content>
+  </div>
+
+  <mat-card-content *ngIf="showSolicitudID">
+    <ngx-actualizacion-datos
+      [nuevaSolicitud]="nuevaSolicitud"
+      [dataSolicitud]="solicitudSeleccionada"
+      (solicitudEnviada)="solicitudEnviada($event)"
+    ></ngx-actualizacion-datos>
+    <button
+      (click)="activateTab()"
+      mat-flat-button
+      color="primary"
+      class="margin-y"
+    >
+      <mat-icon>keyboard_arrow_left</mat-icon>
+      {{ "GLOBAL.regresar" | translate }}
+    </button>
+  </mat-card-content>
+
+  <mat-card-content *ngIf="showSolicitudNombre">
+    <actualizacion-nombres
+      [dataSolicitud]="solicitudSeleccionada"
+      (solicitudEnviada)="solicitudEnviada($event)"
+    ></actualizacion-nombres>
+    <button
+      (click)="activateTab()"
+      mat-flat-button
+      color="primary"
+      class="margin-y"
+    >
+      <mat-icon>keyboard_arrow_left</mat-icon>
+      {{ "GLOBAL.regresar" | translate }}
+    </button>
+  </mat-card-content>
+</mat-card>

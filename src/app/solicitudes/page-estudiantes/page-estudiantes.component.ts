@@ -6,18 +6,17 @@ import { TranslateService } from '@ngx-translate/core';
 import * as momentTimezone from 'moment-timezone';
 import { PopUpManager } from 'src/app/managers/popup_manager';
 import { decrypt } from 'src/app/utils/util-encrypt';
-import { ImplicitAutenticationService } from 'src/data/services/implicit_autentication.service';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
+import { UserService } from 'src/data/services/user.service';
 // @ts-ignore
 import Swal from 'sweetalert2/dist/sweetalert2';
 
 @Component({
-  // tslint:disable-next-line: component-selector
   selector: 'view-solicitudes',
-  templateUrl: './view-solicitudes.component.html',
-  styleUrls: ['./view-solicitudes.component.scss'],
+  templateUrl: './page-estudiantes.component.html',
+  styleUrls: ['./page-estudiantes.component.scss'],
 })
-export class ViewSolicitudesComponent implements OnInit {
+export class PageEstudiantesComponent implements OnInit {
   datosSolicitudes: any[];
   estructuraTabla: any;
 
@@ -40,17 +39,37 @@ export class ViewSolicitudesComponent implements OnInit {
   showTable: boolean;
   showSolicitudID: boolean;
   showSolicitudNombre: boolean;
-  rol: any;
   nuevaSolicitud: boolean;
   listaDatos = [];
-  isStudent: boolean = false;
 
   constructor(
     private translate: TranslateService,
     private sgaMidActualizacionDatosService: SgaMidActualizacionDatosService,
     private popUpManager: PopUpManager,
-    private autenticationService: ImplicitAutenticationService
-  ) {
+    private userService: UserService
+  ) {}
+
+  async ngOnInit() {
+    this.inicializarVariables();
+    this.cargarDatos();
+  }
+
+  async cargarDatos() {
+    try {
+      if (await this.userService.esAutorizado(['ESTUDIANTE'])) {
+        this.loadSolicitud();
+      } else {
+        this.popUpManager.showAlert(
+          '',
+          "No tienes permisos para ver esta información",
+      );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private inicializarVariables() {
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
@@ -60,30 +79,10 @@ export class ViewSolicitudesComponent implements OnInit {
     this.nombresColumnas['Estado'] = 'solicitudes.estado';
     this.nombresColumnas['Observacion'] = 'solicitudes.observacion';
     this.nombresColumnas['Acciones'] = 'GLOBAL.acciones';
-
-    this.autenticationService.getRole().then((rol) => {
-      this.rol = rol;
-      this.isStudent = this.rol.includes('ESTUDIANTE');
-      this.loadListByRol();
-      this.cargarDatosTabla([]);
-    });
   }
-
-  loadListByRol() {
-    if (
-      this.rol.includes('ADMIN_SGA') ||
-      this.rol.includes('ASISTENTE_ADMISIONES')
-    ) {
-      this.loadList();
-    }
-    if (this.rol.includes('ESTUDIANTE')) {
-      this.loadSolicitud();
-    }
-  }
-
-  ngOnInit() {}
 
   onclick(data) {
+    this.nuevaSolicitud = false;
     this.solicitudSeleccionada = data;
     sessionStorage.setItem('Solicitud', data.Numero);
     sessionStorage.setItem('TerceroSolitud', data.TerceroId);
@@ -118,7 +117,7 @@ export class ViewSolicitudesComponent implements OnInit {
   loadSolicitudes(IdEstadoTipoSolicitud: number) {
     return new Promise((resolve, reject) => {
       this.sgaMidActualizacionDatosService
-        .get('solicitudes-evaluacion/estados/' + IdEstadoTipoSolicitud)
+        .get('solicitudes/estados/' + IdEstadoTipoSolicitud)
         .subscribe(
           (response: any) => {
             if (response.Status === 200) {
@@ -155,10 +154,10 @@ export class ViewSolicitudesComponent implements OnInit {
     });
   }
 
-  loadSolicitud() {
-    const IdTercero = decrypt(localStorage.getItem('persona_id'));
+  async loadSolicitud() {
+    const IdTercero = await this.userService.getPersonaId();
     this.sgaMidActualizacionDatosService
-      .get('solicitudes-evaluacion/terceros/' + IdTercero)
+      .get('solicitudes/estudiantes/' + IdTercero)
       .subscribe(
         (response: any) => {
           if (response.Status === 200) {
@@ -203,46 +202,88 @@ export class ViewSolicitudesComponent implements OnInit {
     this.dataSource = new MatTableDataSource(datosCargados);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.dataSource.sort.direction = 'asc';
-    this.dataSource.sort.active = 'Fecha';
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'Fecha':
+          // Convert date string to Date object
+          return new Date(momentTimezone(item.Fecha, 'DD/MM/YYYY').toISOString());
+        case 'Numero':
+          return Number(item.Numero); // Ensure Numero is treated as a number
+        default:
+          return item[property];
+      }
+    };
+    this.dataSource.sortData = (data, sort) => {
+      const active = sort.active;
+      const direction = sort.direction;
+      if (!active || direction === '') {
+        return data;
+      }
+      return data.sort((a, b) => {
+        const aDate = new Date(momentTimezone(a.Fecha, 'DD/MM/YYYY').toISOString());
+        const bDate = new Date(momentTimezone(b.Fecha, 'DD/MM/YYYY').toISOString());
+        const aNumero = Number(a.Numero);
+        const bNumero = Number(b.Numero);
+        
+        // First sort by Fecha
+        const dateComparison = bDate.getTime() - aDate.getTime();
+        
+        // If dates are equal, sort by Numero
+        if (dateComparison === 0) {
+          return bNumero - aNumero;
+        }
+        
+        return dateComparison;
+      });
+    };
+    if (this.dataSource.sort) {
+      this.dataSource.sort.active = 'Fecha';
+      this.dataSource.sort.direction = 'desc';
+      this.dataSource.sort.sortChange.emit(); // Emit sort change event to trigger sorting
+    }
   }
 
   consultarSolicitudes() {
     this.showTable = false;
-    this.cargarDatosTabla([]);
-    this.rol = this.rol ? this.rol : this.autenticationService.getRole();
-    this.loadListByRol();
+    this.cargarDatos();
   }
 
   activateTab() {
+    
+    this.cargarDatos();
+    this.limpiarSeleccion();
+  }
+
+  async nuevaSolicitudNombre() {
+    sessionStorage.setItem(
+      'TerceroSolitud',
+      decrypt(localStorage.getItem('persona_id'))
+    );
+    this.nuevaSolicitud = true;
+    this.showSolicitudNombre = true;
+    this.showSolicitudID = false;
+    this.showTable = false;
+  }
+
+  nuevaSolicitudId() {
+    sessionStorage.setItem(
+      'TerceroSolitud',
+      decrypt(localStorage.getItem('persona_id'))
+    );
+    this.showSolicitudNombre = false;
+    this.showSolicitudID = true;
+    this.showTable = false;
+    this.nuevaSolicitud = true;
+  }
+
+  limpiarSeleccion(){
     this.nuevaSolicitud = undefined;
     this.solicitudSeleccionada = undefined;
     this.showTable = true;
     this.showSolicitudID = false;
     this.showSolicitudNombre = false;
     this.nuevaSolicitud = false;
-    this.loadListByRol();
-  }
-
-  nuevoNombre() {
-    sessionStorage.setItem(
-      'TerceroSolitud',
-      decrypt(localStorage.getItem('persona_id'))
-    );
-    this.showSolicitudNombre = true;
-    this.showSolicitudID = false;
-    this.showTable = false;
-    this.nuevaSolicitud = true;
-  }
-
-  nuevoID() {
-    sessionStorage.setItem(
-      'TerceroSolitud',
-      decrypt(localStorage.getItem('persona_id'))
-    );
-    this.showSolicitudID = true;
-    this.showTable = false;
-    this.showSolicitudNombre = false;
-    this.nuevaSolicitud = true;
+    sessionStorage.removeItem('Solicitud');
+    sessionStorage.removeItem('TerceroSolitud');
   }
 }
