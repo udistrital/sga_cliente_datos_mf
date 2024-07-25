@@ -48,6 +48,7 @@ import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import { TercerosService } from 'src/data/services/terceros.service';
 import { TercerosMidService } from 'src/data/services/terceros_mid.service';
+import { AuthGuard } from '../../_guards/auth.guard';
 
 @NgModule({
     declarations: [
@@ -107,6 +108,7 @@ import { TercerosMidService } from 'src/data/services/terceros_mid.service';
       TercerosMidService,
       NewNuxeoService,
       DocumentoService,
+      AuthGuard,
       {
         provide: MatPaginatorIntl,
         useClass: CustomMatPaginatorIntl

@@ -6,14 +6,17 @@ import { ActualizacionDatosComponent } from './actualizacion-identificacion/actu
 import { DatosSolicitanteComponent } from './datos-solicitante/datos-solicitante.component';
 import { PageEstudiantesComponent } from './page-estudiantes/page-estudiantes.component';
 import { ActualizacionNombresComponent } from './actualizacion-nombres/actualizacion-nombres.component';
+import { AuthGuard } from '../../_guards/auth.guard';
 
 const routes: Routes = [
   {
     path: 'datos-basicos',
+    canActivate: [AuthGuard],
     component: PageAdministrativoComponent,
   },
   {
     path: 'actualizacion-datos',
+    canActivate: [AuthGuard],
     component: PageEstudiantesComponent,
   },
 ];
@@ -22,7 +25,7 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class SolicitudesRoutingComponent {}
+export class SolicitudesRoutingComponent { }
 
 export const routedComponents = [
   SolicitudesComponent,
