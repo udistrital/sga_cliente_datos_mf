@@ -97,5 +97,27 @@
     "generar_id_boton": "Update identification",
     "instrucciones": "To make a new request, select one of the buttons above. To view the details of an existing request, click on the magnifying glass icon in the history table.",
     "historial_titulo": "Request history"
+  },
+  "aspirantes": {
+    "titulo": "Applicant Data",
+    "titulo_basicos": "Basic data",
+    "titulo_identificacion": "Identification data",
+    "titulo_adicionales": "Additional data",
+    "modificar": "Modify",
+    "guardar_cambios": "Save changes",
+    "cargando": "Loading data...",
+    "no_persona": "Could not obtain the person's information",
+    "no_data": "No applicant data found",
+    "primer_nombre": "First name",
+    "segundo_nombre": "Middle name",
+    "primer_apellido": "First surname",
+    "segundo_apellido": "Second surname",
+    "tipo_documento": "Document type",
+    "numero_documento": "Document number",
+    "fecha_expedicion": "Issue date",
+    "fecha_nacimiento": "Date of birth",
+    "genero": "Gender",
+    "correo_principal": "Email",
+    "telefono": "Phone"
   }
 }

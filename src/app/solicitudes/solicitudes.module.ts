@@ -44,15 +44,14 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SolicitudesComponent } from './solicitudes.component';
 import { NewNuxeoService } from 'src/data/services/new_nuxeo.service';
 import { DocumentoService } from 'src/data/services/documento.service';
-import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+import { DynamicFormModule } from '../dynamic-form/dynamic-form.module';
 import { SgaMidActualizacionDatosService } from 'src/data/services/sga_mid_actualizacion_datos.service';
 import { TercerosService } from 'src/data/services/terceros.service';
 import { TercerosMidService } from 'src/data/services/terceros_mid.service';
 
 @NgModule({
     declarations: [
-      routedComponents,
-      DynamicFormComponent
+      ...routedComponents
     ],
     imports: [
       CommonModule,
@@ -91,6 +90,7 @@ import { TercerosMidService } from 'src/data/services/terceros_mid.service';
       MatSortModule,
       MatTableModule,
       MatDatepickerModule,
+      DynamicFormModule,
       TranslateModule,
       FormsModule,
       ReactiveFormsModule,

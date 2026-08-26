@@ -179,7 +179,11 @@ export class DynamicFormComponent implements OnInit, OnChanges {
                       }
                       break;
                     case 'mat-date':
-                      element.valor = new Date(this.modeloData[i]);
+                      if (this.modeloData[i]) {
+                        const fecha = String(this.modeloData[i]).split('T')[0];
+                        const [anio, mes, dia] = fecha.split('-').map(Number);
+                        element.valor = new Date(anio, mes - 1, dia);
+                      }
                       break;
                     case 'file':
                       element.url = this.cleanURL(this.modeloData[i]);

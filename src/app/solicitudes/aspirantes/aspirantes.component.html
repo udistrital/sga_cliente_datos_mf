@@ -1,0 +1,44 @@
+<div class="aspirantes">
+  <div *ngIf="loading" class="alert warning margin-y">
+    <mat-icon class="icon">hourglass_top</mat-icon>
+    <span>{{ "aspirantes.cargando" | translate }}</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+  <div class="grupo">
+    <ngx-dinamicform [normalform]="formBasicos" [modeloData]="info_info_persona"></ngx-dinamicform>
+    <div class="acciones">
+      <button *ngIf="!editing.basicos" mat-flat-button color="primary" (click)="modificar('basicos')">
+        {{ "aspirantes.modificar" | translate }}
+      </button>
+      <button *ngIf="editing.basicos" mat-flat-button color="accent" (click)="guardar('basicos')">
+        {{ "aspirantes.guardar_cambios" | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="grupo">
+    <ngx-dinamicform [normalform]="formIdentificacion" [modeloData]="info_info_persona"></ngx-dinamicform>
+    <div class="acciones">
+      <button *ngIf="!editing.identificacion" mat-flat-button color="primary" (click)="modificar('identificacion')">
+        {{ "aspirantes.modificar" | translate }}
+      </button>
+      <button *ngIf="editing.identificacion" mat-flat-button color="accent" (click)="guardar('identificacion')">
+        {{ "aspirantes.guardar_cambios" | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="grupo">
+    <ngx-dinamicform [normalform]="formAdicionales" [modeloData]="info_info_persona"></ngx-dinamicform>
+    <div class="acciones">
+      <button *ngIf="puedeEditarAdicionales && !editing.adicionales" mat-flat-button color="primary" (click)="modificar('adicionales')">
+        {{ "aspirantes.modificar" | translate }}
+      </button>
+      <button *ngIf="puedeEditarAdicionales && editing.adicionales" mat-flat-button color="accent" (click)="guardar('adicionales')">
+        {{ "aspirantes.guardar_cambios" | translate }}
+      </button>
+    </div>
+  </div>
+  </ng-container>
+</div>

@@ -10,7 +10,21 @@ export const routes: Routes = [
   },
   {
     path: '',
-    loadChildren: () => import ('./solicitudes/solicitudes.module').then(m => m.SolicitudesModule),
+    pathMatch: 'full',
+    redirectTo: 'aspirantes',
+  },
+  {
+    path: 'actualizacion-datos',
+    pathMatch: 'full',
+    redirectTo: 'aspirantes',
+  },
+  {
+    path: '',
+    loadChildren: () => import('./solicitudes/solicitudes.module').then(m => m.SolicitudesModule),
+  },
+  {
+    path: 'aspirantes',
+    loadChildren: () => import ('./solicitudes/aspirantes/aspirantes.module').then(m => m.AspirantesModule),
   }
 ];
 
