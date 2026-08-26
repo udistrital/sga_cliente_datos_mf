@@ -97,5 +97,27 @@
     "generar_id_boton": "Actualizar identificación",
     "instrucciones": "Para realizar una nueva solicitud, selecciona uno de los botones de arriba. Para ver el detalle de una solicitud existente, haz clic en el ícono de lupa en la tabla de historial.",
     "historial_titulo": "Historial de solicitudes"
+  },
+  "aspirantes": {
+    "titulo": "Datos del Aspirante",
+    "titulo_basicos": "Datos básicos",
+    "titulo_identificacion": "Datos de identificación",
+    "titulo_adicionales": "Datos adicionales",
+    "modificar": "Modificar",
+    "guardar_cambios": "Guardar cambios",
+    "cargando": "Cargando datos...",
+    "no_persona": "No se pudo obtener la información de la persona",
+    "no_data": "No se encontraron datos del aspirante",
+    "primer_nombre": "Primer nombre",
+    "segundo_nombre": "Segundo nombre",
+    "primer_apellido": "Primer apellido",
+    "segundo_apellido": "Segundo apellido",
+    "tipo_documento": "Tipo de documento",
+    "numero_documento": "Número de documento",
+    "fecha_expedicion": "Fecha de expedición",
+    "fecha_nacimiento": "Fecha de nacimiento",
+    "genero": "Género",
+    "correo_principal": "Correo electrónico",
+    "telefono": "Teléfono"
   }
 }
