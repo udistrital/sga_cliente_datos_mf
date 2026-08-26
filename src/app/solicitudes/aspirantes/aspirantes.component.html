@@ -32,10 +32,10 @@
   <div class="grupo">
     <ngx-dinamicform [normalform]="formAdicionales" [modeloData]="info_info_persona"></ngx-dinamicform>
     <div class="acciones">
-      <button *ngIf="!editing.adicionales" mat-flat-button color="primary" (click)="modificar('adicionales')">
+      <button *ngIf="puedeEditarAdicionales && !editing.adicionales" mat-flat-button color="primary" (click)="modificar('adicionales')">
         {{ "aspirantes.modificar" | translate }}
       </button>
-      <button *ngIf="editing.adicionales" mat-flat-button color="accent" (click)="guardar('adicionales')">
+      <button *ngIf="puedeEditarAdicionales && editing.adicionales" mat-flat-button color="accent" (click)="guardar('adicionales')">
         {{ "aspirantes.guardar_cambios" | translate }}
       </button>
     </div>

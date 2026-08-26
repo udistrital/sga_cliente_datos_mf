@@ -26,6 +26,7 @@ export class AspirantesComponent implements OnInit {
   info_persona_id: number | null = null;
   loading = true;
   tiposDocumento: any[] = [];
+  puedeEditarAdicionales = true;
 
   editing: Record<Grupo, boolean> = {
     basicos: false,
@@ -90,6 +91,13 @@ export class AspirantesComponent implements OnInit {
   }
 
   modificar(grupo: Grupo) {
+    if (grupo === 'adicionales' && !this.puedeEditarAdicionales) {
+      this.popUpManager.showAlert(
+        '',
+        this.translate.instant('aspirantes.no_telefono'),
+      );
+      return;
+    }
     this.editing[grupo] = true;
     this.setEditing(grupo, true);
   }
@@ -290,6 +298,7 @@ export class AspirantesComponent implements OnInit {
           CorreoElectronico: d.UsuarioWSO2 ?? '',
           Telefono: d.Telefono ?? '',
         };
+        this.puedeEditarAdicionales = !!d.Telefono;
         this.loading = false;
       },
       error: () => {
